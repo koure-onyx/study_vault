@@ -1,78 +1,63 @@
 ```
 # Dependencies
 node_modules/
-**/node_modules/
 
-# Build outputs
+# Build artifacts
 dist/
 build/
 .next/
 out/
-.nuxt/
-public/build/
-*.bundle.js
-*.min.js
-*.map
-
-# Package manager caches
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.*
+*.env.*
 
-# Turborepo
-.turbo/
-**/.turbo/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+# Python specific
 __pycache__/
-*.py[cod]
-*$py.class
-
-# Coverage
-coverage/
-.htmlcov/
-.coverage
-
-# Python
 *.pyc
-__pycache__/
 *.pyo
 *.pyd
 .Python
 env/
 venv/
-ENV/
 .venv/
-env.bak/
-venv.bak/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+.MF
+.pytest_cache/
+.mypy_cache/
 
-# Database
-*.sqlite3
-*.db
+# Next.js
+.next/
+out/
+
+# VS Code
+.vscode/
 
 # Temporary files
 *.tmp
 *.temp
+*.log
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 ```
