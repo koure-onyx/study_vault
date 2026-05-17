@@ -7,22 +7,15 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "prettier": "^3.2.5",
-    "eslint": "^8.57.0",
-    "@types/node": "^20.11.0",
-    "typescript": "^5.3.3"
+    "turbo": "^2.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "packageManager": "npm@10.2.4"
+  }
 }

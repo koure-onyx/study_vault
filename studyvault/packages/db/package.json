@@ -1,18 +1,13 @@
 {
   "name": "@studyvault/db",
   "version": "1.0.0",
-  "private": true,
-  "main": "./index.js",
+  "type": "module",
+  "main": "./connect.js",
   "exports": {
-    ".": "./index.js",
-    "./models/*": "./models/*.js",
-    "./connect": "./connect.js"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "clean": "rm -rf node_modules"
+    ".": "./connect.js",
+    "./models/*": "./models/*.js"
   },
   "dependencies": {
-    "mongoose": "^8.0.3"
+    "mongoose": "^8.0.0"
   }
 }

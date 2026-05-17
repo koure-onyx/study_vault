@@ -1,63 +1,49 @@
-const { verifyToken } = require('./jwt');
+// packages/lib/auth/middleware.js
+import { verifyToken } from './jwt.js';
 
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-
+export function authMiddleware(request) {
+  const authHeader = request.headers.get('authorization');
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({
-      success: false,
-      error: 'No token provided',
-    });
+    return { error: 'Unauthorized', status: 401 };
   }
 
   const token = authHeader.split(' ')[1];
   const decoded = verifyToken(token);
 
   if (!decoded) {
-    return res.status(401).json({
-      success: false,
-      error: 'Invalid or expired token',
-    });
+    return { error: 'Invalid or expired token', status: 401 };
   }
 
-  req.user = decoded;
-  next();
+  return { user: decoded, success: true };
 }
 
-function optionalAuthMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-    const decoded = verifyToken(token);
-    if (decoded) {
-      req.user = decoded;
+export function requireAuth(handler) {
+  return async (request) => {
+    const authResult = authMiddleware(request);
+    
+    if (authResult.error) {
+      return Response.json(
+        { success: false, error: authResult.error },
+        { status: authResult.status }
+      );
     }
-  }
 
-  next();
+    request.user = authResult.user;
+    return handler(request);
+  };
 }
 
-function adminMiddleware(req, res, next) {
-  if (!req.user) {
-    return res.status(401).json({
-      success: false,
-      error: 'Authentication required',
-    });
-  }
-
-  if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-    return res.status(403).json({
-      success: false,
-      error: 'Admin access required',
-    });
-  }
-
-  next();
+export function requireRole(...roles) {
+  return (handler) => {
+    return async (request) => {
+      if (!request.user || !roles.includes(request.user.role)) {
+        return Response.json(
+          { success: false, error: 'Forbidden: insufficient permissions' },
+          { status: 403 }
+        );
+      }
+      return handler(request);
+    };
+  };
 }
-
-module.exports = {
-  authMiddleware,
-  optionalAuthMiddleware,
-  adminMiddleware,
-};

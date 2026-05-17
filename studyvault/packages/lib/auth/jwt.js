@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken');
+// packages/lib/auth/jwt.js
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
-const JWT_EXPIRES_IN = '7d';
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_change_in_production';
 
-function generateToken(payload) {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+export function generateToken(payload) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
-function verifyToken(token) {
+export function verifyToken(token) {
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
@@ -15,14 +15,6 @@ function verifyToken(token) {
   }
 }
 
-function decodeToken(token) {
+export function decodeToken(token) {
   return jwt.decode(token);
 }
-
-module.exports = {
-  generateToken,
-  verifyToken,
-  decodeToken,
-  JWT_SECRET,
-  JWT_EXPIRES_IN,
-};

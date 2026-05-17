@@ -1,64 +1,55 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const userVaultSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  topic: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Topic',
-  },
-  question: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Question',
-  },
-  itemType: {
-    type: String,
-    enum: ['note', 'bookmark', 'flashcard', 'summary', 'formula', 'important_question'],
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  tags: [{
-    type: String,
-  }],
-  color: {
-    type: String,
-    default: '#FFFFFF',
-  },
-  isPinned: {
-    type: Boolean,
-    default: false,
-  },
-  isPrivate: {
-    type: Boolean,
-    default: true,
-  },
-  reviewCount: {
-    type: Number,
-    default: 0,
-  },
-  lastReviewedAt: {
-    type: Date,
-  },
-  nextReviewAt: {
-    type: Date,
-  },
-}, {
-  timestamps: true,
-});
+const UserVaultSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+  topic_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },
+  chapter_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter' },
+  program_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Program' },
 
-userVaultSchema.index({ user: 1, itemType: 1 });
-userVaultSchema.index({ user: 1, isPinned: 1 });
-userVaultSchema.index({ user: 1, createdAt: -1 });
+  type: {
+    type: String,
+    enum: ['flashcard', 'video_link', 'bookmark', 'note', 'highlight'],
+    required: true,
+  },
 
-module.exports = mongoose.models.UserVault || mongoose.model('UserVault', userVaultSchema);
+  // Flashcard
+  flashcard: {
+    front: String,
+    back: String,
+    is_ai_generated: { type: Boolean, default: false },
+  },
+
+  // Video link (YouTube or other)
+  video: {
+    url: String,
+    title: String,
+    thumbnail_url: String,
+    platform: { type: String, enum: ['youtube', 'other'], default: 'youtube' },
+  },
+
+  // Highlight — a piece of text from the topic
+  highlight: {
+    text: String,
+    block_order: Number,
+    color: { type: String, default: '#FEF3C7' },
+  },
+
+  // Personal note
+  note: {
+    text: String,
+  },
+
+  // Review tracking (for flashcards and bookmarks)
+  review_status: {
+    type: String,
+    enum: ['not_reviewed', 'reviewing', 'mastered'],
+    default: 'not_reviewed',
+  },
+  last_reviewed: Date,
+}, { timestamps: true });
+
+UserVaultSchema.index({ user_id: 1, topic_id: 1 });
+UserVaultSchema.index({ user_id: 1, type: 1 });
+UserVaultSchema.index({ user_id: 1, program_id: 1 });
+
+export default mongoose.models.UserVault || mongoose.model('UserVault', UserVaultSchema);
