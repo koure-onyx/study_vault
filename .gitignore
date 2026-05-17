@@ -11,7 +11,7 @@ out/
 # Environment variables
 .env
 .env.local
-*.env.*
+.env.*
 
 # Python
 __pycache__/
@@ -26,53 +26,23 @@ pip-log.txt
 pip-delete-this-directory.txt
 .tox/
 .coverage
-coverage/
-htmlcov/
-.nox/
-.pytest_cache/
-.mypy_cache/
-
-# Logs
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
 *.log
-
-# OS generated files
+.git/modules/
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-Icon?
-```
 
-Wait, let me reconsider. Looking at the file changes, I see this is a Next.js application with TypeScript files, not Python files, so the Python-related ignores were incorrect. Here's the corrected version:
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-```
-# Dependencies
-node_modules/
-
-# Build outputs
-dist/
-build/
-.next/
-out/
-
-# Environment variables
-.env
-.env.local
-*.env.*
-
-# Logs
-*.log
-
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-Icon?
 ```
