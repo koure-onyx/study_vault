@@ -1,0 +1,24 @@
+{
+  "name": "@studyvault/lib",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./ai/*": "./ai/*.js",
+    "./auth/*": "./auth/*.js",
+    "./ingestion/*": "./ingestion/*.js",
+    "./seo/*": "./seo/*.js",
+    "./utils/*": "./utils/*.js"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "google-generative-ai": "^0.1.3",
+    "openai": "^4.20.1"
+  }
+}
