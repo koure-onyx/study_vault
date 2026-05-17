@@ -1,5 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studyvault';
+
+// Connection cache to prevent multiple connections in development
 let cached = global.mongoose;
 
 if (!cached) {
@@ -11,8 +14,6 @@ async function connectDB() {
     return cached.conn;
   }
 
-  const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/studyvault';
-
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
@@ -21,7 +22,7 @@ async function connectDB() {
       socketTimeoutMS: 45000,
     };
 
-    cached.promise = mongoose.connect(mongoUri, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('✅ MongoDB connected successfully');
       return mongoose;
     });
@@ -38,4 +39,4 @@ async function connectDB() {
   return cached.conn;
 }
 
-module.exports = connectDB;
+export default connectDB;

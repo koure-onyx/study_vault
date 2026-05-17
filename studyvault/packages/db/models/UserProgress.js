@@ -1,82 +1,35 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const userProgressSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  topic: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Topic',
-    required: true,
-  },
-  status: {
+const UserProgressSchema = new mongoose.Schema({
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  topic_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', required: true },
+  chapter_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter' },
+  book_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' },
+  program_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Program' },
+
+  is_read: { type: Boolean, default: false },
+  scroll_depth_percent: { type: Number, default: 0 },
+  time_spent_seconds: { type: Number, default: 0 },
+
+  quiz_attempts: { type: Number, default: 0 },
+  highest_quiz_score: { type: Number, default: 0 },
+  last_quiz_score: { type: Number, default: 0 },
+  mastery_status: {
     type: String,
-    enum: ['not_started', 'in_progress', 'completed'],
-    default: 'not_started',
+    enum: ['locked', 'in_progress', 'mastered'],
+    default: 'locked',
   },
-  progressPercentage: {
-    type: Number,
-    min: 0,
-    max: 100,
-    default: 0,
-  },
-  timeSpentSeconds: {
-    type: Number,
-    default: 0,
-  },
-  lastViewedAt: {
-    type: Date,
-  },
-  completedAt: {
-    type: Date,
-  },
-  quizScores: [{
-    score: {
-      type: Number,
-      min: 0,
-      max: 100,
-    },
-    totalQuestions: {
-      type: Number,
-    },
-    correctAnswers: {
-      type: Number,
-    },
-    takenAt: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
-  notes: [{
-    content: {
-      type: String,
-      required: true,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
-  bookmarks: [{
-    contentId: {
-      type: String,
-    },
-    contentSnippet: {
-      type: String,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-  }],
-}, {
-  timestamps: true,
-});
 
-userProgressSchema.index({ user: 1, topic: 1 });
-userProgressSchema.index({ user: 1, status: 1 });
-userProgressSchema.index({ user: 1, lastViewedAt: -1 });
+  // 70% quiz + 30% reading
+  progress_percent: { type: Number, default: 0 },
+  xp_earned: { type: Number, default: 0 },
+  last_accessed: { type: Date, default: Date.now },
+}, { timestamps: true });
 
-module.exports = mongoose.models.UserProgress || mongoose.model('UserProgress', userProgressSchema);
+UserProgressSchema.index({ user_id: 1, topic_id: 1 }, { unique: true });
+UserProgressSchema.index({ user_id: 1, program_id: 1 });
+UserProgressSchema.index({ user_id: 1, mastery_status: 1 });
+UserProgressSchema.index({ user_id: 1, chapter_id: 1 });
+
+export default mongoose.models.UserProgress ||
+  mongoose.model('UserProgress', UserProgressSchema);

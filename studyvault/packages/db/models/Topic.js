@@ -1,84 +1,178 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const topicSchema = new mongoose.Schema({
-  chapter: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Chapter',
-    required: true,
+const ContentBlockSchema = new mongoose.Schema({
+  type: {
+    type: String, required: true,
+    enum: ['heading','paragraph','formula','table','image','list','callout',
+           'example','definition','mcq','question','problem','figure','summary_point','activity'],
   },
-  book: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Book',
-    required: true,
-  },
-  topicNumber: {
-    type: Number,
-    required: true,
-  },
-  title: {
+  text: String,
+  html: String,
+  level: Number,
+  latex: String,
+  formula_label: String,
+  headers: [String],
+  rows: [[String]],
+  caption: String,
+  src: String,
+  alt: String,
+  figure_number: String,
+  page_coordinates: String,
+  ordered: Boolean,
+  items: [String],
+  variant: {
     type: String,
-    required: true,
-    trim: true,
+    enum: ['note','activity','warning','info','quick-quiz','lab-safety','caution','do-you-know'],
   },
-  slug: {
-    type: String,
-    required: true,
-    lowercase: true,
-  },
-  content: [{
-    type: {
-      type: String,
-      enum: ['heading', 'paragraph', 'definition', 'example', 'formula', 'diagram', 'note', 'warning'],
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-    order: {
-      type: Number,
-      default: 0,
-    },
+  title: String,
+  problem: String,
+  solution: String,
+  steps: [String],
+  answer: String,
+  question: String,
+  options: [String],
+  correct_answer: String,
+  explanation: String,
+  term: String,
+  definition: String,
+  block_order: Number,
+}, { _id: false });
+
+const TopicSchema = new mongoose.Schema({
+  // Identity
+  title: { type: String, required: true },
+  title_urdu: String,
+  slug: { type: String, required: true },
+  topic_number: String,
+  display_order: { type: Number, required: true },
+
+  // Hierarchy (denormalized for zero-join queries)
+  book_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Book', required: true, index: true },
+  chapter_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Chapter', required: true, index: true },
+  program_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Program', required: true, index: true },
+  board_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Board', index: true },
+  program_name: String,
+  subject_name: String,
+  chapter_number: Number,
+  chapter_title: String,
+
+  // Content — the 3 layers
+  raw_text: { type: String, required: true },
+  clean_html: { type: String, required: true },
+  content_blocks: [ContentBlockSchema],
+
+  // Extracted intelligence
+  formulas: [{
+    latex: String,
+    label: String,
+    plain_text: String,
   }],
-  summary: {
-    type: String,
-    trim: true,
-  },
-  keyPoints: [{
-    type: String,
+  key_terms: [{
+    term: String,
+    definition: String,
   }],
-  difficulty: {
-    type: String,
-    enum: ['easy', 'medium', 'hard'],
-    default: 'medium',
-  },
-  estimatedTimeMinutes: {
-    type: Number,
-    default: 15,
-  },
-  seoTitle: {
-    type: String,
-    trim: true,
-  },
-  seoDescription: {
-    type: String,
-    trim: true,
-  },
-  viewCount: {
-    type: Number,
-    default: 0,
-  },
-  isPublished: {
-    type: Boolean,
-    default: false,
-  },
-}, {
-  timestamps: true,
-});
+  book_mcqs: [{
+    question: String,
+    options: [String],
+    correct_answer: String,
+    explanation: String,
+    source: { type: String, default: 'book' },
+  }],
+  book_short_questions: [String],
+  book_problems: [{
+    problem: String,
+    answer: String,
+    steps: [String],
+  }],
+  keywords: { type: [String], index: true },
+  difficulty: { type: String, enum: ['easy','medium','hard'], default: 'medium' },
+  estimated_read_time: { type: Number, default: 3 },
 
-topicSchema.index({ chapter: 1, topicNumber: 1 });
-topicSchema.index({ chapter: 1, slug: 1 });
-topicSchema.index({ book: 1, isPublished: 1 });
-topicSchema.index({ slug: 1 });
+  // Version control
+  edition_year: { type: Number, required: true },
+  version_status: {
+    type: String,
+    enum: ['new','unchanged','modified','removed'],
+    default: 'new',
+  },
+  previous_version_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Topic', default: null },
+  content_hash: String,
 
-module.exports = mongoose.models.Topic || mongoose.model('Topic', topicSchema);
+  // Exam frequency
+  exam_frequency: [{
+    board_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
+    board_short_code: String,
+    board_name: String,
+    total_appearances: { type: Number, default: 0 },
+    appearance_by_year: [{
+      year: Number,
+      count: Number,
+      question_types: [String],
+    }],
+    last_appeared_year: Number,
+    is_hot_topic: { type: Boolean, default: false },
+  }],
+
+  // AI cache
+  ai_cache: {
+    explanation: {
+      text: String,
+      generated_at: Date,
+      model_used: String,
+      is_approved: Boolean,
+    },
+    explanation_urdu: {
+      text: String,
+      generated_at: Date,
+      is_approved: Boolean,
+    },
+    tts_audio: {
+      english_url: String,
+      urdu_url: String,
+      generated_at: Date,
+    },
+    flashcards: [{
+      front: String,
+      back: String,
+    }],
+    flashcards_approved: Boolean,
+    flashcards_generated_at: Date,
+  },
+
+  // SEO
+  seo: {
+    meta_title: String,
+    meta_description: String,
+    keywords: [String],
+    json_ld: mongoose.Schema.Types.Mixed,
+    canonical_url: String,
+    og_image_url: String,
+    source_page: Number,
+  },
+
+  // Status
+  is_live: { type: Boolean, default: false, index: true },
+  guest_preview_percent: { type: Number, default: 50 },
+  workflow_status: {
+    type: String,
+    enum: ['draft','pending_review','approved','rejected','live'],
+    default: 'draft',
+  },
+  admin_notes: String,
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  approved_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  approved_at: Date,
+}, { timestamps: true });
+
+// ALL INDEXES
+TopicSchema.index({ slug: 1, chapter_id: 1 }, { unique: true });
+TopicSchema.index({ chapter_id: 1, display_order: 1 });
+TopicSchema.index({ book_id: 1, is_live: 1 });
+TopicSchema.index({ workflow_status: 1 });
+TopicSchema.index({ title: 'text', keywords: 'text', raw_text: 'text' });
+TopicSchema.index({ program_id: 1, is_live: 1 });
+TopicSchema.index({ 'exam_frequency.board_id': 1, 'exam_frequency.is_hot_topic': 1 });
+TopicSchema.index({ book_id: 1, version_status: 1 });
+TopicSchema.index({ content_hash: 1 });
+
+export default mongoose.models.Topic || mongoose.model('Topic', TopicSchema);

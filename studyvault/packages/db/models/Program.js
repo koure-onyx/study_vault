@@ -1,40 +1,32 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const programSchema = new mongoose.Schema({
-  name: {
+const ProgramSchema = new mongoose.Schema({
+  name: { type: String, required: true, trim: true },
+  slug: { type: String, required: true, unique: true, lowercase: true },
+  short_name: String,
+  program_type: {
     type: String,
+    enum: ['academic', 'entrance_exam', 'professional', 'language', 'custom'],
     required: true,
-    trim: true,
   },
-  slug: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-  },
-  description: {
-    type: String,
-    trim: true,
-  },
-  grades: [{
-    type: Number,
-    min: 1,
-    max: 16,
+  is_linear: { type: Boolean, default: true },
+  requires_textbook: { type: Boolean, default: true },
+  description: String,
+  icon_url: String,
+  color_hex: String,
+  display_order: { type: Number, default: 0 },
+  is_active: { type: Boolean, default: true },
+  is_featured: { type: Boolean, default: false },
+  access_tier: { type: String, enum: ['free', 'basic', 'premium'], default: 'basic' },
+  applicable_boards: [{
+    board_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Board' },
+    board_name: String,
   }],
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-  boards: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Board',
-  }],
-}, {
-  timestamps: true,
-});
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+}, { timestamps: true });
 
-// Index for fast lookups
-programSchema.index({ slug: 1 });
-programSchema.index({ isActive: 1 });
+ProgramSchema.index({ slug: 1 }, { unique: true });
+ProgramSchema.index({ program_type: 1, is_active: 1 });
+ProgramSchema.index({ is_featured: 1 });
 
-module.exports = mongoose.models.Program || mongoose.model('Program', programSchema);
+export default mongoose.models.Program || mongoose.model('Program', ProgramSchema);
