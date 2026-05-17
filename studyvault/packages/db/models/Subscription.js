@@ -2,41 +2,35 @@ import mongoose from 'mongoose';
 
 const SubscriptionSchema = new mongoose.Schema({
   user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  plan: { type: String, enum: ['free', 'basic', 'premium', 'family'], required: true },
+  plan: { type: String, enum: ['free', 'basic', 'premium', 'family'], default: 'free' },
   status: { type: String, enum: ['active', 'expired', 'cancelled', 'pending'], default: 'active' },
+  started_at: { type: Date, default: Date.now },
+  expires_at: Date,
+  cancelled_at: Date,
+  cancel_reason: String,
   
   // Payment details
-  provider: { type: String, enum: ['stripe', 'paypal', 'jazzcash', 'easypaisa'], default: 'stripe' },
+  payment_provider: { type: String, enum: ['stripe', 'paypal', 'jazzcash', 'easypaisa', 'manual'] },
   payment_id: String,
-  subscription_id: String,
-  
-  // Billing cycle
-  billing_cycle: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
   amount: Number,
   currency: { type: String, default: 'PKR' },
   
-  // Dates
-  start_date: { type: Date, default: Date.now },
-  current_period_start: Date,
-  current_period_end: Date,
-  cancelled_at: Date,
-  ended_at: Date,
-  
-  // Features
-  features: {
-    ai_credits_per_day: { type: Number, default: 5 },
-    download_limit_per_month: { type: Number, default: 10 },
-    video_lessons_access: { type: Boolean, default: false },
-    priority_support: { type: Boolean, default: false },
-    offline_mode: { type: Boolean, default: false },
-  },
+  // Usage tracking
+  ai_credits_total: { type: Number, default: 0 },
+  ai_credits_used: { type: Number, default: 0 },
+  download_count: { type: Number, default: 0 },
   
   // Auto-renewal
   auto_renew: { type: Boolean, default: true },
   renewal_reminder_sent: { type: Boolean, default: false },
+  
+  // Admin notes
+  notes: String,
+  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 }, { timestamps: true });
 
 SubscriptionSchema.index({ user_id: 1, status: 1 });
-SubscriptionSchema.index({ status: 1, current_period_end: 1 });
+SubscriptionSchema.index({ plan: 1, status: 1 });
+SubscriptionSchema.index({ expires_at: 1 });
 
 export default mongoose.models.Subscription || mongoose.model('Subscription', SubscriptionSchema);

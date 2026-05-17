@@ -2,10 +2,19 @@
   "name": "@studyvault/db",
   "version": "1.0.0",
   "type": "module",
-  "main": "./connect.js",
+  "main": "connect.js",
   "exports": {
-    ".": "./connect.js",
-    "./models/*": "./models/*.js"
+    "./models/Program": "./models/Program.js",
+    "./models/Board": "./models/Board.js",
+    "./models/Book": "./models/Book.js",
+    "./models/Chapter": "./models/Chapter.js",
+    "./models/Topic": "./models/Topic.js",
+    "./models/User": "./models/User.js",
+    "./models/UserProgress": "./models/UserProgress.js",
+    "./models/Question": "./models/Question.js",
+    "./models/UserVault": "./models/UserVault.js",
+    "./models/Subscription": "./models/Subscription.js",
+    "./connect": "./connect.js"
   },
   "dependencies": {
     "mongoose": "^8.0.0"

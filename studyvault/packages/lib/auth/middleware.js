@@ -1,49 +1,64 @@
-// packages/lib/auth/middleware.js
 import { verifyToken } from './jwt.js';
 
-export function authMiddleware(request) {
+/**
+ * Extract token from Authorization header or cookies
+ * @param {Request} request - Next.js request object
+ * @returns {string|null} Token or null
+ */
+export function extractToken(request) {
+  // Check Authorization header
   const authHeader = request.headers.get('authorization');
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return { error: 'Unauthorized', status: 401 };
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7);
   }
 
-  const token = authHeader.split(' ')[1];
-  const decoded = verifyToken(token);
-
-  if (!decoded) {
-    return { error: 'Invalid or expired token', status: 401 };
-  }
-
-  return { user: decoded, success: true };
-}
-
-export function requireAuth(handler) {
-  return async (request) => {
-    const authResult = authMiddleware(request);
-    
-    if (authResult.error) {
-      return Response.json(
-        { success: false, error: authResult.error },
-        { status: authResult.status }
-      );
+  // Check cookies
+  const cookies = request.headers.get('cookie');
+  if (cookies) {
+    const match = cookies.match(/(?:^|;\s*)token=([^;]+)/);
+    if (match) {
+      return match[1];
     }
+  }
 
-    request.user = authResult.user;
-    return handler(request);
-  };
+  return null;
 }
 
-export function requireRole(...roles) {
-  return (handler) => {
-    return async (request) => {
-      if (!request.user || !roles.includes(request.user.role)) {
-        return Response.json(
-          { success: false, error: 'Forbidden: insufficient permissions' },
-          { status: 403 }
-        );
-      }
-      return handler(request);
-    };
-  };
+/**
+ * Middleware to protect routes - requires authentication
+ * @param {Request} request - Next.js request object
+ * @returns {Object|null} Decoded token or null if unauthorized
+ */
+export function requireAuth(request) {
+  const token = extractToken(request);
+  
+  if (!token) {
+    return null;
+  }
+
+  const decoded = verifyToken(token);
+  return decoded;
+}
+
+/**
+ * Middleware to check user role
+ * @param {Array<string>} allowedRoles - Array of allowed roles
+ * @param {Object} user - Decoded JWT token
+ * @returns {boolean} True if user has allowed role
+ */
+export function requireRole(allowedRoles, user) {
+  if (!user || !user.role) {
+    return false;
+  }
+  
+  return allowedRoles.includes(user.role);
+}
+
+/**
+ * Middleware to check if user is admin
+ * @param {Object} user - Decoded JWT token
+ * @returns {boolean} True if user is admin or superadmin
+ */
+export function requireAdmin(user) {
+  return requireRole(['admin', 'superadmin'], user);
 }

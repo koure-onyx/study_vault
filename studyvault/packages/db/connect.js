@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/studyvault';
 
-// Connection cache to prevent multiple connections in development
 let cached = global.mongoose;
 
 if (!cached) {
@@ -23,7 +22,7 @@ async function connectDB() {
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB connected successfully');
+      console.log('✓ MongoDB connected successfully');
       return mongoose;
     });
   }
@@ -32,7 +31,7 @@ async function connectDB() {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    console.error('❌ MongoDB connection error:', e.message);
+    console.error('✗ MongoDB connection error:', e.message);
     throw e;
   }
 
