@@ -1,7 +1,3 @@
-// packages/lib/ingestion/ingestBook.js
-// This is the most critical non-UI function in the entire platform.
-// It takes the DeepSeek JSON and populates the database.
-
 import crypto from 'crypto';
 import Program from '@studyvault/db/models/Program';
 import Board from '@studyvault/db/models/Board';
