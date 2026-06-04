@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Jameel Noori Nastaleeq';
+  src: url('/fonts/JameelNooriNastaleeq.ttf') format('truetype');
+  /* This ensures the font is ONLY loaded for Arabic/Urdu unicode characters */
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+  font-display: swap;
+}
+
+/* ─── Quran Core Font Class ─── */
+.font-quran,
+.font-quran-core,
+.quran-full-ayah,
+[lang="ar"] {
+  font-family:
+    var(--font-quran),
+    'UthmanicHafs',
+    'KingFahdQuran',
+    serif !important;
+
+  direction: rtl;
+  text-rendering: optimizeLegibility;
+
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "clig" 1,
+    "calt" 1,
+    "ccmp" 1,
+    "rlig" 1;
+
+  font-synthesis: none;
+  letter-spacing: 0;
+  word-spacing: normal;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Quran Full Ayah Container ─── */
+.quran-full-ayah {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  line-height: 3.25;
+  overflow: visible;
+  white-space: normal;
+  padding-top: 0.4em;
+  padding-bottom: 0.4em;
+  font-size: 1.7rem;
+}
+
+/* ─── Quran Word Cards (word-by-word section only) ─── */
+.quran-word-card-arabic {
+  letter-spacing: 0;
+  font-synthesis: none;
+}

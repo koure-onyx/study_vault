@@ -1,0 +1,28 @@
+{
+  "name": "@studyvault/lib",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./ai/provider": "./ai/provider.js",
+    "./ai/prompts": "./ai/prompts.js",
+    "./auth/jwt": "./auth/jwt.js",
+    "./auth/middleware": "./auth/middleware.js",
+    "./auth/server": "./auth/server.js",
+    "./auth/options": "./auth/options.ts",
+    "./ingestion/ingestBook": "./ingestion/ingestBook.js",
+    "./seo/jsonLd": "./seo/jsonLd.js",
+    "./utils/slug": "./utils/slug.js",
+    "./utils/hash": "./utils/hash.js",
+    "./utils/progress": "./utils/progress.js",
+    "./content/bookFilter": "./content/bookFilter.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.2.0",
+    "openai": "^4.20.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "next-auth": "^4.24.0"
+  }
+}
