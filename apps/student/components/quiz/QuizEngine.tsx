@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Star, ThumbsUp, BookOpen } from 'lucide-react';
 
 interface Question {
   _id: string;
@@ -208,7 +209,7 @@ export default function QuizEngine({
             transition={{ type: 'spring', delay: 0.2 }}
             className="text-5xl mb-3"
           >
-            {score >= 80 ? '🌟' : score >= 60 ? '👍' : '📚'}
+            {score >= 80 ? <Star className="w-16 h-16 mx-auto" /> : score >= 60 ? <ThumbsUp className="w-16 h-16 mx-auto" /> : <BookOpen className="w-16 h-16 mx-auto" />}
           </motion.div>
           <h3 className="text-2xl font-bold mb-2">
             {score >= 80 ? 'Mastered!' : score >= 60 ? 'Good Job!' : 'Keep Practicing!'}

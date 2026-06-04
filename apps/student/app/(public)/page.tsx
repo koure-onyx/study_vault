@@ -1,6 +1,7 @@
 // apps/student/app/(public)/page.tsx
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Star, Flame, Target, Bot, BarChart3, Package, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: "Pakistan's #1 Board Exam Prep Platform | StudyVault PK",
@@ -36,15 +37,15 @@ function HeroProgressWheel() {
           Exam Ready
         </text>
       </svg>
-      <span className="mt-2 text-xs font-medium text-accent-600 bg-accent-100 px-3 py-1 rounded-full">
-        ⭐ Topic Mastered
+      <span className="mt-2 text-xs font-medium text-accent-600 bg-accent-100 px-3 py-1 rounded-full flex items-center gap-1">
+        <Star className="w-3 h-3 fill-current" /> Topic Mastered
       </span>
     </div>
   );
 }
 
 // ── Stat Card ────────────────────────────────────────────────────
-function StatCard({ icon, value, label }: { icon: string; value: string; label: string }) {
+function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
       <span className="text-2xl">{icon}</span>
@@ -57,7 +58,7 @@ function StatCard({ icon, value, label }: { icon: string; value: string; label: 
 }
 
 // ── Feature Card ─────────────────────────────────────────────────
-function FeatureCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
+function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
       <span className="text-3xl block mb-3">{icon}</span>
@@ -122,7 +123,7 @@ export default function HomePage() {
         <div className="flex-shrink-0 flex flex-col items-center gap-6">
           <HeroProgressWheel />
           <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm w-64">
-            <p className="text-xs text-gray-500 mb-1">🔥 Hot Topic — Lahore Board</p>
+            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Flame className="w-3 h-3 text-orange-500" /> Hot Topic — Lahore Board</p>
             <p className="font-semibold text-gray-900 text-sm">Vernier Callipers</p>
             <p className="text-xs text-gray-400 mt-0.5">Appeared 4 times in past 5 years</p>
           </div>
@@ -132,10 +133,10 @@ export default function HomePage() {
       {/* STATS BAR */}
       <section className="bg-primary-50 border-y border-primary-100 py-8">
         <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <StatCard icon="📚" value="500+" label="Topics Live" />
-          <StatCard icon="🎯" value="5" label="Boards Supported" />
-          <StatCard icon="🤖" value="AI" label="Powered Explanations" />
-          <StatCard icon="🔥" value="Past" label="Papers Included" />
+          <StatCard icon={<BookOpen className="w-6 h-6" />} value="500+" label="Topics Live" />
+          <StatCard icon={<Target className="w-6 h-6" />} value="5" label="Boards Supported" />
+          <StatCard icon={<Bot className="w-6 h-6" />} value="AI" label="Powered Explanations" />
+          <StatCard icon={<Flame className="w-6 h-6" />} value="Past" label="Papers Included" />
         </div>
       </section>
 
@@ -152,22 +153,22 @@ export default function HomePage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <FeatureCard
-            icon="🔥"
+            icon={<Flame className="w-8 h-8" />}
             title="Exam Frequency"
             desc="See exactly which topics appear most in Lahore, FBISE, and other past papers."
           />
           <FeatureCard
-            icon="🤖"
+            icon={<Bot className="w-8 h-8" />}
             title="AI Explain"
             desc="Get instant simple explanations of any topic. In English, in plain words."
           />
           <FeatureCard
-            icon="📊"
+            icon={<BarChart3 className="w-8 h-8" />}
             title="Progress Wheel"
             desc="Track exactly how exam-ready you are. Score 80%+ on a quiz to Master a topic."
           />
           <FeatureCard
-            icon="📦"
+            icon={<Package className="w-8 h-8" />}
             title="My Study Vault"
             desc="Save YouTube links, flashcards, and highlights for quick revision before exams."
           />
