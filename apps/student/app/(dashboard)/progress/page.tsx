@@ -1,5 +1,10 @@
+import { AppShell } from '@/components/layout/AppShell';
+import { PageContainer } from '@/components/layout/PageContainer';
 import { Card } from '@/components/ui/Card';
-import { Target, TrendingUp, Award, BrainCircuit } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { Target, TrendingUp, Award, BrainCircuit, BookOpen, CheckCircle } from 'lucide-react';
 import connectDB from '@studyvault/db/connect';
 import _UserProgress from '@studyvault/db/models/UserProgress';
 import _Book from '@studyvault/db/models/Book';
@@ -14,16 +19,29 @@ export default async function ProgressPage() {
   await connectDB();
   const user = await getServerUser();
 
-  if (!user) return <div className="p-8">Please login.</div>;
+  if (!user) {
+    return (
+      <AppShell>
+        <PageContainer title="Progress">
+          <div className="text-center py-12">
+            <p className="text-text-secondary">Please login to view your progress.</p>
+            <Button variant="primary" className="mt-4" onClick={() => window.location.href = '/login'}>
+              Login
+            </Button>
+          </div>
+        </PageContainer>
+      </AppShell>
+    );
+  }
 
   const studentProfile = user.student_profile || {};
   const activeProgramId = studentProfile.active_program_id;
 
   // Fetch all books for the current program to show mastery per book/subject
   const books = await Book.find({ program_id: activeProgramId, is_live: true }).lean();
-  
+
   // Fetch user progress for these books
-  const progressEntries = await UserProgress.find({ 
+  const progressEntries = await UserProgress.find({
     user_id: user._id,
     program_id: activeProgramId
   }).lean();
@@ -38,102 +56,117 @@ export default async function ProgressPage() {
     return {
       name: book.title,
       progress: progressPercent,
-      color: progressPercent > 70 ? 'bg-emerald-500' : progressPercent > 30 ? 'bg-cyan-500' : 'bg-slate-300'
+      color: progressPercent > 70 ? 'bg-success' : progressPercent > 30 ? 'bg-primary' : 'bg-border'
     };
   });
 
   // Calculate overall stats
   const totalCompletedTopics = progressEntries.filter((p: any) => p.is_read).length;
-  const avgQuizAccuracy = progressEntries.length > 0 
+  const avgQuizAccuracy = progressEntries.length > 0
     ? Math.round(progressEntries.reduce((acc: number, p: any) => acc + (p.highest_quiz_score || 0), 0) / progressEntries.length)
     : 0;
 
-  return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold font-display text-gray-900">Your Progress</h1>
-          <p className="text-gray-500 mt-1">Track your exam readiness across all subjects.</p>
-        </div>
-        <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
-          <Award className="w-5 h-5 text-amber-500" />
-          <span className="font-bold text-gray-900">Level {Math.floor((studentProfile.xp_total || 0) / 100) + 1} Scholar</span>
-        </div>
-      </div>
+  const currentLevel = Math.floor((studentProfile.xp_total || 0) / 100) + 1;
+  const xpForNextLevel = currentLevel * 100;
+  const currentXpInLevel = (studentProfile.xp_total || 0) % 100;
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-500" /> Subject Mastery
+  return (
+    <AppShell>
+      <PageContainer 
+        title="Your Progress" 
+        description="Track your exam readiness across all subjects."
+      >
+        <div className="space-y-6">
+          {/* Level Header */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-bg-tertiary flex items-center justify-center">
+                  <Award className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-text-primary">Level {currentLevel} Scholar</h2>
+                  <p className="text-xs text-text-muted">{currentXpInLevel} / {xpForNextLevel} XP</p>
+                </div>
+              </div>
+              <Badge variant="primary">Level {currentLevel}</Badge>
+            </div>
+            <div className="w-full bg-bg-tertiary rounded-full h-2 overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-300" 
+                style={{ width: `${(currentXpInLevel / xpForNextLevel) * 100}%` }}
+              />
+            </div>
+          </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                <span className="text-sm font-medium text-text-secondary">Topics Completed</span>
+              </div>
+              <p className="text-2xl font-bold text-text-primary">{totalCompletedTopics}</p>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-5 h-5 text-success" />
+                <span className="text-sm font-medium text-text-secondary">Avg Accuracy</span>
+              </div>
+              <p className="text-2xl font-bold text-text-primary">{avgQuizAccuracy}%</p>
+            </Card>
+          </div>
+
+          {/* Subject Mastery */}
+          <Card className="p-4">
+            <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" /> 
+              Subject Mastery
             </h2>
-            <div className="space-y-6">
-              {subjectMastery.length > 0 ? subjectMastery.map(sub => (
+            <div className="space-y-4">
+              {subjectMastery.length > 0 ? subjectMastery.map((sub: any) => (
                 <div key={sub.name}>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="font-medium text-gray-700">{sub.name}</span>
-                    <span className="text-gray-500">{sub.progress}% Mastery</span>
+                    <span className="font-medium text-text-secondary">{sub.name}</span>
+                    <span className="text-text-muted">{sub.progress}% Mastery</span>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                    <div className={`h-2.5 rounded-full ${sub.color}`} style={{ width: `${sub.progress}%` }}></div>
+                  <div className="w-full bg-bg-tertiary rounded-full h-2.5 overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full ${sub.color} transition-all duration-300`} 
+                      style={{ width: `${sub.progress}%` }}
+                    />
                   </div>
                 </div>
               )) : (
-                <div className="text-center py-8 text-slate-500">
-                  Start reading topics to see your mastery here!
+                <div className="text-center py-8 text-text-muted">
+                  <BrainCircuit className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>No progress data available yet.</p>
+                  <p className="text-xs mt-1">Start learning to see your mastery grow!</p>
                 </div>
               )}
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="p-6 bg-gradient-to-br from-emerald-900 to-cyan-900 text-white border-0 shadow-lg">
-              <Target className="w-8 h-8 text-emerald-200 mb-4" />
-              <h3 className="text-xl font-bold mb-1">Weekly Goal</h3>
-              <p className="text-emerald-100 mb-4">Complete 10 topics</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold">{progressEntries.filter((p: any) => {
-                  const oneWeekAgo = new Date();
-                  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                  return p.is_read && new Date(p.updatedAt) > oneWeekAgo;
-                }).length}</span>
-                <span className="text-emerald-200 mb-1">/ 10 completed</span>
-              </div>
-            </Card>
-            <Card className="p-6 bg-gradient-to-br from-indigo-900 to-blue-900 text-white border-0 shadow-lg">
-              <BrainCircuit className="w-8 h-8 text-indigo-200 mb-4" />
-              <h3 className="text-xl font-bold mb-1">Quiz Accuracy</h3>
-              <p className="text-indigo-100 mb-4">Global average</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold">{avgQuizAccuracy}%</span>
-                <span className="text-indigo-200 mb-1">average</span>
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Recent Activity</h2>
-            <div className="space-y-4">
-              {progressEntries.slice(0, 5).sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((p: any, i: number) => (
-                <div key={i} className="flex justify-between items-center p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">Topic Progress</p>
-                    <p className="text-xs text-gray-500">{new Date(p.updatedAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md text-sm">
-                    {p.mastery_status === 'mastered' ? 'Mastered' : 'In Progress'}
-                  </div>
+          {/* Achievements Preview */}
+          <Card className="p-4">
+            <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-primary" /> 
+              Recent Achievements
+            </h2>
+            <div className="grid grid-cols-3 gap-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="aspect-square bg-bg-tertiary rounded-lg flex flex-col items-center justify-center p-2">
+                  <CheckCircle className="w-6 h-6 text-text-muted mb-1" />
+                  <span className="text-xs text-center text-text-muted">Locked</span>
                 </div>
               ))}
-              {progressEntries.length === 0 && (
-                <p className="text-center text-slate-500 py-4 text-sm">No recent activity found.</p>
-              )}
             </div>
+            <Button variant="outline" size="sm" className="w-full mt-4">
+              View All Achievements
+            </Button>
           </Card>
         </div>
-      </div>
-    </div>
+      </PageContainer>
+    </AppShell>
   );
 }
