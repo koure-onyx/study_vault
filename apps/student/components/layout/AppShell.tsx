@@ -3,7 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoadingProvider } from "./LoadingProvider";
+import { LoadingProvider, useLoading } from "./LoadingProvider";
 import { BottomNavigation } from "../navigation/BottomNavigation";
 import { WaveformLoader } from "./WaveformLoader";
 
@@ -13,7 +13,15 @@ interface AppShellProps {
   showHeader?: boolean;
 }
 
-function DesktopHeader({ title }: { title?: string }) {
+function AuthLoadingState() {
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+      <WaveformLoader />
+    </div>
+  );
+}
+
+function DesktopHeader({ title, session }: { title?: string; session: any }) {
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -32,15 +40,27 @@ function DesktopHeader({ title }: { title?: string }) {
             </span>
           </div>
         </div>
-        
+
         {title && (
           <h1 className="text-lg font-medium text-stone-700 hidden md:block">
             {title}
           </h1>
         )}
-        
+
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200" />
+          {session?.user?.image ? (
+            <img
+              src={session.user.image}
+              alt={session.user.name || "User"}
+              className="w-8 h-8 rounded-full border border-stone-200"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center">
+              <span className="text-xs font-medium text-stone-600">
+                {session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0) || "U"}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </motion.header>
@@ -49,22 +69,28 @@ function DesktopHeader({ title }: { title?: string }) {
 
 function ShellContent({ children, title }: { children: ReactNode; title?: string }) {
   const [isMobile, setIsMobile] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Show loading state while checking auth
+  if (status === "loading") {
+    return <AuthLoadingState />;
+  }
+
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
       {/* Desktop Header - Hidden on mobile */}
       <div className="hidden md:block">
-        <DesktopHeader title={title} />
+        <DesktopHeader title={title} session={session} />
       </div>
 
       {/* Mobile Header - Simplified */}

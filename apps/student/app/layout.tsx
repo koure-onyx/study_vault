@@ -3,7 +3,6 @@ import { Playfair_Display, DM_Sans } from 'next/font/google';
 import localFont from 'next/font/local';
 import './globals.css';
 import '../styles/quran-text.css';
-import { AccountNav } from '@/components/AccountNav';
 import { getUser } from '@studyvault/lib/auth/server';
 
 const playfair = Playfair_Display({
@@ -34,17 +33,10 @@ export const metadata: Metadata = {
 import { Providers } from '@/components/Providers';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const fontsLoaded = true; // In Next.js 16, font loading is automatic
-  const initialUser = await getUser();
-  
   return (
     <html lang="en" dir="ltr" className={`${playfair.variable} ${dmSans.variable} ${quranFont.variable}`} suppressHydrationWarning>
       <body className="font-body bg-white text-gray-900 antialiased">
         <Providers>
-          <AccountNav initialUser={initialUser ? {
-            name: initialUser.name,
-            email: initialUser.email,
-          } : null} />
           {children}
         </Providers>
       </body>
