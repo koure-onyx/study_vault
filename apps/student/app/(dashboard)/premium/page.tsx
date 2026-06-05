@@ -95,7 +95,7 @@ export default function PremiumPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600 font-medium">Loading premium plans...</p>
@@ -105,7 +105,7 @@ export default function PremiumPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div 
@@ -114,7 +114,7 @@ export default function PremiumPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Upgrade to <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">Premium</span>
+            Upgrade to <span className="text-emerald-600">Premium</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Unlock unlimited AI explanations, advanced analytics, and exclusive features for Pakistani board exam success
@@ -172,7 +172,7 @@ export default function PremiumPage() {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                  <span className="bg-emerald-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
                     MOST POPULAR
                   </span>
                 </div>
@@ -213,7 +213,7 @@ export default function PremiumPage() {
                 }}
                 className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
                   selectedPlan === plan.id
-                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg hover:shadow-xl'
+                    ? 'bg-emerald-600 text-white shadow-lg hover:shadow-xl'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -288,7 +288,7 @@ export default function PremiumPage() {
               <button
                 onClick={handleCheckout}
                 disabled={!paymentMethod || processing}
-                className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-emerald-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {processing ? (
                   <>

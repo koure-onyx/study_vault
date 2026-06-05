@@ -191,9 +191,9 @@ export default function QuizEngine({
   if (quizComplete) {
     const masteryStatus = score >= 80 ? 'mastered' : score >= 60 ? 'good' : 'needs_practice';
     const masteryColors = {
-      mastered: 'from-emerald-500 to-teal-600',
-      good: 'from-blue-500 to-indigo-600',
-      needs_practice: 'from-amber-500 to-orange-600',
+      mastered: 'bg-emerald-500',
+      good: 'bg-blue-500',
+      needs_practice: 'bg-amber-500',
     };
 
     return (
@@ -202,7 +202,7 @@ export default function QuizEngine({
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-2xl shadow-lg p-8"
       >
-        <div className={`text-center mb-8 bg-gradient-to-r ${masteryColors[masteryStatus]} p-6 rounded-xl text-white`}>
+        <div className={`text-center mb-8 ${masteryColors[masteryStatus]} p-6 rounded-xl text-white`}>
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -268,7 +268,7 @@ export default function QuizEngine({
           {score >= 60 && (
             <button
               onClick={() => window.location.href = '/dashboard'}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg"
+              className="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-medium shadow-lg"
             >
               Continue Learning
             </button>
@@ -294,7 +294,7 @@ export default function QuizEngine({
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
-            className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full"
+            className="bg-emerald-500 h-2 rounded-full"
           />
         </div>
       </div>
@@ -401,7 +401,7 @@ export default function QuizEngine({
               <button
                 onClick={handleSubmitAnswer}
                 disabled={!selectedAnswer}
-                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Submit Answer
               </button>
@@ -409,7 +409,7 @@ export default function QuizEngine({
               <button
                 onClick={handleNextQuestion}
                 disabled={isSubmitting}
-                className="px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all font-medium shadow-lg"
+                className="px-8 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-medium shadow-lg"
               >
                 {isSubmitting ? 'Submitting...' : currentQuestionIndex < questions.length - 1 ? 'Next Question →' : 'Finish Quiz'}
               </button>
