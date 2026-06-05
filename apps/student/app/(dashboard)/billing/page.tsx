@@ -93,9 +93,9 @@ const SecureLockOverlay: React.FC<SecureLockOverlayProps> = ({ isOpen, onClose, 
             transition={softCardSpring}
             className="fixed inset-0 m-auto w-full max-w-md h-fit z-50 p-4"
           >
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div className="bg-card rounded-2xl shadow-2xl overflow-hidden border">
               {/* Header */}
-              <div className="p-6 text-center border-b border-gray-200 dark:border-gray-700">
+              <div className="p-6 text-center border-b">
                 <motion.svg
                   animate={controls}
                   width="64"
@@ -104,7 +104,7 @@ const SecureLockOverlay: React.FC<SecureLockOverlayProps> = ({ isOpen, onClose, 
                   className="mx-auto mb-4"
                 >
                   {/* Lock Body */}
-                  <rect x="16" y="28" width="32" height="24" rx="4" fill="currentColor" className="text-purple-600 dark:text-purple-400" />
+                  <rect x="16" y="28" width="32" height="24" rx="4" fill="currentColor" className="text-primary" />
                   {/* Lock Shackle */}
                   <path
                     d="M20 28V20C20 13.373 25.373 8 32 8C38.627 8 44 13.373 44 20V28"
@@ -112,31 +112,31 @@ const SecureLockOverlay: React.FC<SecureLockOverlayProps> = ({ isOpen, onClose, 
                     strokeWidth="4"
                     strokeLinecap="round"
                     fill="none"
-                    className="text-purple-600 dark:text-purple-400"
+                    className="text-primary"
                   />
                   {/* Keyhole */}
                   <circle cx="32" cy="38" r="4" fill="white" />
                   <rect x="30" y="42" width="4" height="6" rx="2" fill="white" />
                 </motion.svg>
 
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-xl font-bold text-text-primary mb-2">
                   Secure Payment
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400">
+                <p className="text-text-muted">
                   You are about to subscribe to <span className="font-semibold">{planName}</span>
                 </p>
               </div>
 
               {/* Security Info */}
-              <div className="p-6 bg-gray-50 dark:bg-gray-800/50">
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+              <div className="p-6 bg-secondary/50">
+                <div className="flex items-center justify-center gap-2 text-sm text-text-muted mb-4">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" className="text-green-500">
                     <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm3.5 11.5l-5 5L3 13l1.5-1.5 2 2 3.5-3.5L8.5 8.5 8 9l-1-1 2-2 2.5 2.5z" />
                   </svg>
                   <span>256-bit SSL Encrypted</span>
                 </div>
 
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-6">
+                <div className="flex items-center justify-center gap-2 text-sm text-text-muted mb-6">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" className="text-blue-500">
                     <path d="M14 2H2a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zM2 1a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V3a2 2 0 00-2-2H2z" />
                     <path d="M8 4a1 1 0 011 1v2h2a1 1 0 110 2H9v2a1 1 0 11-2 0V9H5a1 1 0 110-2h2V5a1 1 0 011-1z" />
@@ -150,7 +150,7 @@ const SecureLockOverlay: React.FC<SecureLockOverlayProps> = ({ isOpen, onClose, 
                     whileTap={{ scale: 0.98 }}
                     transition={softCardSpring}
                     onClick={onClose}
-                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    className="flex-1 px-4 py-3 rounded-xl border text-text-primary font-medium hover:bg-accent transition-colors"
                   >
                     Cancel
                   </motion.button>
@@ -160,7 +160,7 @@ const SecureLockOverlay: React.FC<SecureLockOverlayProps> = ({ isOpen, onClose, 
                     whileTap={{ scale: 0.98 }}
                     transition={softCardSpring}
                     onClick={onConfirm}
-                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium shadow-lg hover:shadow-xl transition-shadow"
+                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-white font-medium shadow-lg hover:shadow-xl transition-shadow"
                   >
                     Proceed to Pay
                   </motion.button>
@@ -188,7 +188,7 @@ const PendingBanner: React.FC<PendingBannerProps> = ({ transactionId }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={toastSpring}
-      className="relative overflow-hidden rounded-xl border border-yellow-400/30 bg-yellow-50 dark:bg-yellow-900/20 p-4 mb-6"
+      className="relative overflow-hidden rounded-xl border border-yellow-400/30 bg-yellow-50 p-4 mb-6"
     >
       {/* Animated Diagonal Stripes */}
       <div
@@ -217,7 +217,7 @@ const PendingBanner: React.FC<PendingBannerProps> = ({ transactionId }) => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-          className="text-yellow-600 dark:text-yellow-400"
+          className="text-yellow-600"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
@@ -225,10 +225,10 @@ const PendingBanner: React.FC<PendingBannerProps> = ({ transactionId }) => {
         </motion.div>
 
         <div className="flex-1">
-          <h4 className="font-semibold text-yellow-800 dark:text-yellow-200">
+          <h4 className="font-semibold text-yellow-800">
             Payment Processing
           </h4>
-          <p className="text-sm text-yellow-700 dark:text-yellow-300">
+          <p className="text-sm text-yellow-700">
             {transactionId
               ? `Transaction ID: ${transactionId}`
               : 'Waiting for payment gateway confirmation...'}
@@ -311,7 +311,7 @@ const SuccessBanner: React.FC<SuccessBannerProps> = ({ planName, expiresAt, onDi
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={toastSpring}
-      className="relative overflow-hidden rounded-xl border border-green-400/30 bg-green-50 dark:bg-green-900/20 p-6 mb-6"
+      className="relative overflow-hidden rounded-xl border border-green-400/30 bg-green-50 p-6 mb-6"
     >
       {/* Particle Canvas */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -341,7 +341,7 @@ const SuccessBanner: React.FC<SuccessBannerProps> = ({ planName, expiresAt, onDi
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-          className="text-green-600 dark:text-green-400"
+          className="text-green-600"
         >
           <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
             <path d="M16 2a14 14 0 100 28 14 14 0 000-28zm-1.5 20.5l-6-6 2.12-2.12 3.88 3.88 9.88-9.88 2.12 2.12-12 12z" />
@@ -349,14 +349,14 @@ const SuccessBanner: React.FC<SuccessBannerProps> = ({ planName, expiresAt, onDi
         </motion.div>
 
         <div className="flex-1">
-          <h4 className="text-lg font-bold text-green-800 dark:text-green-200 mb-1 flex items-center gap-2">
+          <h4 className="text-lg font-bold text-green-800 mb-1 flex items-center gap-2">
             <CheckCircle className="w-5 h-5" />
             <span>Payment Successful!</span>
           </h4>
-          <p className="text-green-700 dark:text-green-300 mb-2">
+          <p className="text-green-700 mb-2">
             Your <span className="font-semibold">{planName}</span> plan is now active.
           </p>
-          <p className="text-sm text-green-600 dark:text-green-400">
+          <p className="text-sm text-green-600">
             Valid until:{' '}
             <span className="font-mono">{new Date(expiresAt).toLocaleDateString('en-PK')}</span>
           </p>
@@ -364,7 +364,7 @@ const SuccessBanner: React.FC<SuccessBannerProps> = ({ planName, expiresAt, onDi
 
         <button
           onClick={onDismiss}
-          className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 transition-colors"
+          className="text-green-600 hover:text-green-800 transition-colors"
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -419,20 +419,20 @@ const FailedBanner: React.FC<FailedBannerProps> = ({ onSubmitTransactionId, isLo
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={toastSpring}
-      className="rounded-xl border border-red-400/30 bg-red-50 dark:bg-red-900/20 p-6 mb-6"
+      className="rounded-xl border border-red-400/30 bg-red-50 p-6 mb-6"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="text-red-600 dark:text-red-400">
+        <div className="text-red-600">
           <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
             <path d="M16 2a14 14 0 100 28 14 14 0 000-28zm0 24a1 1 0 110-2 1 1 0 010 2zm1-7.414V8a1 1 0 10-2 0v10.586l-2.293 2.293a1 1 0 001.414 1.414l3-3a1 1 0 00.293-.707z" />
           </svg>
         </div>
 
         <div className="flex-1">
-          <h4 className="text-lg font-bold text-red-800 dark:text-red-200 mb-1">
+          <h4 className="text-lg font-bold text-red-800 mb-1">
             Payment Verification Required
           </h4>
-          <p className="text-red-700 dark:text-red-300 text-sm">
+          <p className="text-red-700 text-sm">
             We couldn&apos;t automatically verify your payment. Please enter your transaction ID manually.
           </p>
         </div>
@@ -440,7 +440,7 @@ const FailedBanner: React.FC<FailedBannerProps> = ({ onSubmitTransactionId, isLo
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label htmlFor="transactionId" className="block text-sm font-medium text-red-800 dark:text-red-200 mb-1">
+          <label htmlFor="transactionId" className="block text-sm font-medium text-red-800 mb-1">
             Transaction ID
           </label>
           <input
@@ -449,14 +449,14 @@ const FailedBanner: React.FC<FailedBannerProps> = ({ onSubmitTransactionId, isLo
             value={transactionId}
             onChange={(e) => setTransactionId(e.target.value)}
             placeholder="e.g., EP1234567890"
-            className="w-full px-4 py-3 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-red-950/30 text-red-900 dark:text-red-100 placeholder-red-400 dark:placeholder-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-lg border border-red-300 bg-background text-text-primary placeholder-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
             disabled={isLoading}
           />
           {error && (
             <motion.p
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              className="mt-1 text-sm text-red-600 dark:text-red-400"
+              className="mt-1 text-sm text-red-600"
             >
               {error}
             </motion.p>
@@ -485,8 +485,8 @@ const FailedBanner: React.FC<FailedBannerProps> = ({ onSubmitTransactionId, isLo
         </motion.button>
       </form>
 
-      <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-800">
-        <p className="text-xs text-red-600 dark:text-red-400 text-center">
+      <div className="mt-4 pt-4 border-t border-red-200">
+        <p className="text-xs text-red-600 text-center">
           Check your EasyPaisa or JazzCash SMS for the transaction ID
         </p>
       </div>
@@ -651,12 +651,12 @@ export default function BillingPage() {
   // Loading state skeleton
   if (userLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+          <div className="h-8 w-48 bg-secondary rounded animate-pulse" />
           <div className="grid gap-6 md:grid-cols-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl animate-pulse" />
+              <div key={i} className="h-64 bg-secondary rounded-2xl animate-pulse" />
             ))}
           </div>
         </div>
@@ -667,7 +667,7 @@ export default function BillingPage() {
   // If already subscribed and active
   if (subscription?.status === 'active' && paymentState !== 'success') {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -675,10 +675,10 @@ export default function BillingPage() {
             transition={softCardSpring}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-text-primary mb-2">
               Your Subscription
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-text-muted">
               Manage your current plan and billing details
             </p>
           </motion.div>
@@ -687,24 +687,24 @@ export default function BillingPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={softCardSpring}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700"
+            className="bg-card rounded-2xl shadow-lg p-6 border"
           >
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white capitalize">
+                <h3 className="text-xl font-bold text-text-primary capitalize">
                   {subscription.plan} Plan
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-text-muted">
                   Active until {new Date(subscription.expiresAt).toLocaleDateString('en-PK')}
                 </p>
               </div>
-              <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+              <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
                 Active
               </span>
             </div>
 
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <div className="pt-4 border-t">
+              <p className="text-sm text-text-muted mb-2">
                 Current Price: <span className="font-semibold">PKR {subscription.amount}/month</span>
               </p>
               <motion.button
@@ -712,7 +712,7 @@ export default function BillingPage() {
                 whileTap={{ scale: 0.98 }}
                 transition={softCardSpring}
                 onClick={() => setPaymentState('idle')}
-                className="text-purple-600 dark:text-purple-400 font-medium hover:underline"
+                className="text-primary font-medium hover:underline"
               >
                 Change Plan →
               </motion.button>
@@ -724,7 +724,7 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+    <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -733,10 +733,10 @@ export default function BillingPage() {
           transition={softCardSpring}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-text-primary mb-2">
             Choose Your Plan
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-text-muted">
             Unlock premium features and unlimited AI-powered learning
           </p>
         </motion.div>
@@ -782,8 +782,8 @@ export default function BillingPage() {
                 onClick={() => handlePlanSelect(plan.id)}
                 className={`relative cursor-pointer rounded-2xl p-6 border-2 transition-all ${
                   isSelected
-                    ? 'border-[color:var(--brand-color)] bg-white dark:bg-gray-800 shadow-xl'
-                    : 'border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-[color:var(--brand-color)] bg-card shadow-xl'
+                    : 'border bg-background/50 hover:border-accent'
                 }`}
                 style={
                   isSelected
@@ -793,22 +793,22 @@ export default function BillingPage() {
               >
                 {/* Popular Badge */}
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold bg-primary text-white shadow-lg">
                     MOST POPULAR
                   </div>
                 )}
 
                 {/* Plan Header */}
                 <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-xl font-bold text-text-primary mb-2">
                     {plan.name}
                   </h3>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-white">
+                    <span className="text-4xl font-bold text-text-primary">
                       {plan.price === 0 ? 'Free' : `PKR ${plan.price}`}
                     </span>
                     {plan.period && (
-                      <span className="text-gray-600 dark:text-gray-400">
+                      <span className="text-text-muted">
                         /{plan.period}
                       </span>
                     )}
@@ -818,7 +818,7 @@ export default function BillingPage() {
                 {/* Features */}
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <li key={i} className="flex items-start gap-2 text-sm text-text-primary">
                       <svg
                         className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
                         viewBox="0 0 20 20"
@@ -842,8 +842,8 @@ export default function BillingPage() {
                   transition={softCardSpring}
                   className={`w-full py-3 rounded-xl font-medium transition-all ${
                     isSelected
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? 'bg-primary text-white shadow-lg'
+                      : 'bg-secondary text-text-primary hover:bg-accent'
                   }`}
                 >
                   {isSelected ? 'Selected' : 'Select Plan'}
@@ -881,12 +881,12 @@ export default function BillingPage() {
                 transition={softCardSpring}
                 onClick={handlePayNow}
                 disabled={isLoading}
-                className="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-bold shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-8 py-4 rounded-2xl bg-primary text-white text-lg font-bold shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isLoading ? 'Processing...' : 'Pay Now'}
               </motion.button>
 
-              <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-4 text-sm text-text-muted">
                 Secure payment via EasyPaisa or JazzCash
               </p>
             </motion.div>

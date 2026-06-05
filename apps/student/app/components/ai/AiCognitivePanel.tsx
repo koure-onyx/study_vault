@@ -213,7 +213,7 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
       {/* Trigger Button */}
       <motion.button
         onClick={handleOpen}
-        className="fixed bottom-24 right-6 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 px-6 py-3 text-white shadow-lg hover:shadow-xl dark:from-violet-500 dark:to-indigo-500"
+        className="fixed bottom-24 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-white shadow-lg hover:shadow-xl"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={springConfig.snappyButton}
@@ -258,25 +258,25 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
               className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-h-[85vh] w-full overflow-hidden rounded-t-3xl sm:max-w-2xl"
             >
               {/* Panel Content */}
-              <div className={`relative flex h-full flex-col bg-gradient-to-b ${theme.gradient} backdrop-blur-xl`}>
+              <div className={`relative flex h-full flex-col bg-card backdrop-blur-xl`}>
                 {/* Drag Handle */}
                 <div className="flex items-center justify-center py-4">
                   <motion.div
-                    className="h-1.5 w-12 rounded-full bg-white/30 dark:bg-white/20"
+                    className="h-1.5 w-12 rounded-full bg-accent"
                     whileHover={{ scale: 1.1 }}
                     transition={springConfig.snappyButton}
                   />
                 </div>
 
                 {/* Header */}
-                <div className="flex items-center justify-between border-b px-6 pb-4" style={{ borderColor: 'hsla(0, 0%, 100%, 0.1)' }}>
+                <div className="flex items-center justify-between border-b px-6 pb-4">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-white dark:text-white">AI Explanation</h2>
+                    <h2 className="text-lg font-bold text-text-primary">AI Explanation</h2>
                     
                     {/* Provider Badge */}
                     <div className="group relative">
                       <motion.div
-                        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${theme.accent} ${theme.border} bg-white/10`}
+                        className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${theme.accent} ${theme.border} bg-secondary/10`}
                         whileHover={{ scale: 1.05 }}
                         transition={springConfig.snappyButton}
                       >
@@ -293,7 +293,7 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
 
                   <motion.button
                     onClick={handleClose}
-                    className="rounded-full p-2 text-white/70 hover:bg-white/10 hover:text-white"
+                    className="rounded-full p-2 text-text-muted hover:bg-accent hover:text-text-primary"
                     whileHover={{ scale: 1.1, rotate: 90 }}
                     whileTap={{ scale: 0.9 }}
                     transition={springConfig.snappyButton}
@@ -310,10 +310,10 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
                   {state.isLoading && (
                     <div className="flex flex-col items-center justify-center py-12">
                       <WaveformLoader color={theme.waveform} />
-                      <p className="mt-6 text-center text-sm text-white/70">
+                      <p className="mt-6 text-center text-sm text-text-muted">
                         {state.provider === 'openai' ? 'OpenAI is thinking...' : 'Gemini is analyzing...'}
                       </p>
-                      <p className="mt-2 text-center text-xs text-white/50">
+                      <p className="mt-2 text-center text-xs text-text-muted/70">
                         This usually takes 5-10 seconds
                       </p>
                     </div>
@@ -352,11 +352,7 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
                       className="prose prose-invert max-w-none"
                     >
                       <div
-                        className="rounded-xl border bg-black/40 p-6 backdrop-blur-sm"
-                        style={{
-                          borderColor: 'hsla(0, 0%, 100%, 0.1)',
-                          boxShadow: 'inset 0 2px 20px hsla(0, 0%, 0%, 0.3)',
-                        }}
+                        className="rounded-xl border bg-secondary p-6 backdrop-blur-sm"
                       >
                         <StreamingText
                           text={streamedText || state.explanation?.text || ''}
@@ -371,7 +367,7 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.5 }}
-                          className="mt-4 text-center text-xs text-white/50"
+                          className="mt-4 text-center text-xs text-text-muted/70"
                         >
                           {state.creditsRemaining} credits remaining today
                         </motion.p>
@@ -382,10 +378,10 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
 
                 {/* Footer Actions */}
                 {!state.isLoading && !state.error && streamedText && (
-                  <div className="border-t px-6 py-4" style={{ borderColor: 'hsla(0, 0%, 100%, 0.1)' }}>
+                  <div className="border-t px-6 py-4">
                     <div className="flex gap-3">
                       <motion.button
-                        className="flex-1 rounded-xl border border-white/20 bg-white/10 py-3 text-sm font-semibold text-white hover:bg-white/20"
+                        className="flex-1 rounded-xl border bg-secondary/10 py-3 text-sm font-semibold text-text-primary hover:bg-secondary/20"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         transition={springConfig.snappyButton}
@@ -393,7 +389,7 @@ export default function AiCognitivePanel({ topicId, userId, onClose }: AiCogniti
                         Copy to Notes
                       </motion.button>
                       <motion.button
-                        className="flex-1 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 py-3 text-sm font-semibold text-white hover:shadow-lg"
+                        className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-white hover:shadow-lg"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         transition={springConfig.snappyButton}
