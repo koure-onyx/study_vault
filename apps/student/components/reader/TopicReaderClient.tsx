@@ -9,7 +9,7 @@ import { ProgressWheel } from '@/components/progress/ProgressWheel';
 import QuranVerseRenderer from '@/components/QuranVerseRenderer';
 import { PreviewWall } from '@/components/reader/PreviewWall';
 import { topicUrl } from '@/lib/reader-urls';
-import { BookOpen, PenLine, Sparkles, Bookmark, Flame, BookMarked, Target, Check, PenTool, CheckCircle } from 'lucide-react';
+import { BookOpen, PenLine, Sparkles, Bookmark, Flame, BookMarked, Target, Check, PenTool, CheckCircle, Star } from 'lucide-react';
 
 interface BoardRef {
   _id?: string;
@@ -471,8 +471,9 @@ export default function TopicReaderClient({
           </div>
           <div className="relative pt-1">
             <div className="flex mb-2 items-center justify-between">
-              <div className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-emerald-600 bg-emerald-100">
-                {isCompleted ? 'Mastered! ⭐' : 'In Progress'}
+              <div className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-emerald-600 bg-emerald-100 flex items-center gap-1">
+                {isCompleted && <Star className="w-3 h-3 fill-emerald-600" />}
+                {isCompleted ? 'Mastered!' : 'In Progress'}
               </div>
             </div>
             <div className="overflow-hidden h-3 text-xs flex rounded-full bg-slate-100">

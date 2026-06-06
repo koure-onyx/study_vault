@@ -1,5 +1,7 @@
 'use client';
 
+import { Star } from 'lucide-react';
+
 export default function ProgressWheel({ progress = 0, size = 120, strokeWidth = 8 }: { 
   progress: number; 
   size?: number; 
@@ -16,7 +18,7 @@ export default function ProgressWheel({ progress = 0, size = 120, strokeWidth = 
 
   if (progress >= 80) {
     color = 'text-emerald-500';
-    statusText = 'Mastered! ⭐';
+    statusText = 'Mastered!';
     showStar = true;
   } else if (progress >= 30) {
     color = 'text-yellow-500';
@@ -63,7 +65,7 @@ export default function ProgressWheel({ progress = 0, size = 120, strokeWidth = 
       {/* Center text */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         {showStar && (
-          <span className="text-2xl animate-bounce">⭐</span>
+          <Star className="w-8 h-8 text-emerald-500 fill-emerald-500 animate-bounce" />
         )}
         <span className={`text-lg font-bold ${progress === 0 ? 'text-slate-400' : 'text-slate-700'}`}>
           {Math.round(progress)}%

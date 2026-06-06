@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Alert } from '@/components/ui/Alert';
+import { Edit2 } from 'lucide-react';
 
 interface Topic {
   _id: string;
@@ -323,9 +324,15 @@ export default function ContentReviewPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-medium border ${getVersionBadgeColor(topic.version_status)}`}>
-                          {topic.version_status === 'new' && '🆕 New'}
-                          {topic.version_status === 'modified' && '✏️ Modified'}
-                          {topic.version_status === 'unchanged' && '✓ Unchanged'}
+                          {topic.version_status === 'new' && (
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-emerald-500" /> New</span>
+                          )}
+                          {topic.version_status === 'modified' && (
+                            <span className="flex items-center gap-1"><Edit2 className="w-3 h-3 text-amber-500" /> Modified</span>
+                          )}
+                          {topic.version_status === 'unchanged' && (
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-slate-400" /> Unchanged</span>
+                          )}
                         </span>
                       </td>
                       <td className="px-4 py-3">

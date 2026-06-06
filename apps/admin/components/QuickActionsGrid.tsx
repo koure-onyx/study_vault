@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BookPlus, Send, Users, Settings } from "lucide-react";
+import { BookPlus, Send, Users, Settings, Zap } from "lucide-react";
 import Link from "next/link";
 
 interface QuickActionsGridProps {
@@ -35,7 +35,7 @@ export default function QuickActionsGrid({ counts }: QuickActionsGridProps) {
       badge: null,
     },
     {
-      title: "⚙️ AI Provider Config",
+      title: "AI Provider Config",
       subtitle: "Manage API keys & models",
       icon: <Settings className="w-6 h-6 text-amber-600" />,
       href: "/admin/control",
@@ -51,7 +51,8 @@ export default function QuickActionsGrid({ counts }: QuickActionsGridProps) {
       className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm"
     >
       <h3 className="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2">
-        ⚡ Quick Actions
+        <Zap className="w-5 h-5 text-amber-500" />
+        Quick Actions
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

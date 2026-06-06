@@ -3,7 +3,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard, ContinueStudyingCard, StreakCard, HotTopicsCard, VaultSnapshotCard } from "@/components/dashboard/DashboardComponents";
-import { Zap, BookOpen, Trophy, Flame, Archive, TrendingUp, ChevronRight } from "lucide-react";
+import { Zap, BookOpen, Trophy, Flame, Archive, TrendingUp, ChevronRight, CheckCircle2, RotateCcw, Clock } from "lucide-react";
 import { bookUrl, chapterUrl } from "@/lib/reader-urls";
 
 // Types
@@ -429,7 +429,10 @@ async function DashboardContent() {
       {/* Row 3: Your Books */}
       <section aria-label="Your Books">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-800">📚 Your Books</h2>
+          <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-emerald-600" />
+            Your Books
+          </h2>
           <a href="/books" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium flex items-center gap-1">
             View All <ChevronRight className="w-4 h-4" />
           </a>
@@ -526,9 +529,9 @@ async function DashboardContent() {
                           ? "bg-amber-100 text-amber-700"
                           : "bg-blue-100 text-blue-700"
                       }`}>
-                        {quiz.status === "mastered" && "✅"}
-                        {quiz.status === "retry" && "🔄"}
-                        {quiz.status === "in-progress" && "⏳"}
+                        {quiz.status === "mastered" && <CheckCircle2 className="w-3 h-3" />}
+                        {quiz.status === "retry" && <RotateCcw className="w-3 h-3" />}
+                        {quiz.status === "in-progress" && <Clock className="w-3 h-3" />}
                         {quiz.status.charAt(0).toUpperCase() + quiz.status.slice(1)}
                       </span>
                     </td>

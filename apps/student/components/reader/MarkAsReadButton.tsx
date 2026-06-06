@@ -61,7 +61,7 @@ export default function MarkAsReadButton({ topicId, xpReward = 10 }: MarkAsReadB
         ) : isRead ? (
           <>
             <Check className="h-4 w-4" />
-            ✅ Read — +{xpReward} XP earned
+            Read — +{xpReward} XP earned
           </>
         ) : (
           <>

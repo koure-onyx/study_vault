@@ -52,7 +52,7 @@ export default function AddNoteButton({ topicId, topicTitle }: AddNoteButtonProp
         className="w-full justify-start gap-2"
       >
         <Pencil className="h-4 w-4" />
-        📝 Add Note
+        Add Note
       </Button>
     );
   }

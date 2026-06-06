@@ -1,4 +1,4 @@
-```gitignore
+```
 # Dependencies
 node_modules/
 
@@ -23,41 +23,19 @@ out/
 # Logs
 *.log
 
-# Python specific
+# Python artifacts (if any Python projects exist)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# Testing
-.pytest_cache/
-.mypy_cache/
-
-
-
-
-# Turborepo cache
-.turbo/
-
-# TypeScript build info
-*.tsbuildinfo
-
-.turbo/
-*.tsbuildinfo
-
-
-# OS generated files
+# Temporary files
+*.tmp
 .DS_Store
 Thumbs.db
 ```
