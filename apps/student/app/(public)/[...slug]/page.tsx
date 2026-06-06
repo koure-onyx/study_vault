@@ -62,13 +62,13 @@ export default async function ReaderPage({
   const resolvedParams = await params;
   const slugs = resolvedParams.slug ?? [];
   console.log('\n==================================================');
-  console.log('DEBUG: ReaderPage slugs:', JSON.stringify(slugs));
+  console.log('DEBUG: ReaderPage slugs:', JSON.stringify(slugs), 'URL:', typeof window !== 'undefined' ? window.location.href : 'server');
   console.log('==================================================\n');
   
   // CRITICAL FIX: Early exit if first slug segment is reserved (api, auth, dashboard, etc.)
   // This prevents the catch-all route from hijacking API calls and internal routes
   if (slugs.length > 0 && isReservedSlug(slugs[0])) {
-    console.log(`[ReaderPage] Blocked reserved slug: ${slugs[0]}`);
+    console.log("RESERVED SLUG HIT", slugs[0]);
     notFound();
   }
   

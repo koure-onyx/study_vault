@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  console.log(`[Proxy] ${request.method} ${request.nextUrl.pathname}`);
   return NextResponse.next();
 }
 

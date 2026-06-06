@@ -15,7 +15,8 @@ export async function requireAuth(req) {
 
     if (!token) return null
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || process.env.MONGODB_JWT_SECRET)
+    const secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.MONGODB_JWT_SECRET || 'fallback-secret-do-not-use-in-production';
+    const decoded = jwt.verify(token, secret)
     return decoded
   } catch {
     return null

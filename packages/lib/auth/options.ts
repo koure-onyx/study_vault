@@ -12,7 +12,7 @@ const hasGoogleOAuth =
   Boolean(process.env.GOOGLE_CLIENT_SECRET) &&
   !process.env.GOOGLE_CLIENT_ID?.startsWith("placeholder");
 
-const providers = hasGoogleOAuth
+const providers: any[] = hasGoogleOAuth
   ? [
       GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -27,6 +27,17 @@ const providers = hasGoogleOAuth
       }),
     ]
   : [];
+
+// Fallback provider to prevent NextAuth from failing if no providers are configured
+if (providers.length === 0) {
+  providers.push({
+    id: "placeholder",
+    name: "Placeholder",
+    type: "credentials",
+    credentials: {},
+    authorize: () => null,
+  });
+}
 
 export const authOptions: NextAuthOptions = {
   providers,
