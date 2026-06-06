@@ -1,87 +1,14 @@
 // apps/student/app/(public)/page.tsx
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Star, Flame, Target, Bot, BarChart3, Package, BookOpen } from 'lucide-react';
+import { ArrowRight, BookOpen, Flame } from 'lucide-react';
+import { FadeIn, ExamReadinessCard, StatsBar, FeatureGrid, HowItWorks } from './HeroAnimated';
 
 export const metadata: Metadata = {
-  title: "Pakistan's #1 Board Exam Prep Platform | StudyVault PK",
+  title: "Pakistan's Smartest Study Platform | Ace Your Boards",
   description:
-    'Grade 9-10 board exam prep with AI explanations, past paper analysis, and progress tracking. Trusted by students across Punjab, Federal, and Sindh boards.',
+    'AI explanations, past paper frequency tracking, and real progress monitoring for Punjab, FBISE, Karachi, and Sindh boards. Grade 9 and 10.',
 };
-
-// ── Progress Wheel (pure SVG, no deps) ──────────────────────────
-function HeroProgressWheel() {
-  const percent = 87;
-  const r = 52;
-  const circ = 2 * Math.PI * r;
-  const filled = (percent / 100) * circ;
-
-  return (
-    <div className="relative inline-flex flex-col items-center">
-      <svg width="140" height="140" viewBox="0 0 140 140">
-        <circle cx="70" cy="70" r={r} fill="none" stroke="#E2E8F0" strokeWidth="12" />
-        <circle
-          cx="70" cy="70" r={r}
-          fill="none"
-          stroke="#10B981"
-          strokeWidth="12"
-          strokeDasharray={`${filled} ${circ}`}
-          strokeDashoffset={circ / 4}
-          strokeLinecap="round"
-          transform="rotate(-90 70 70)"
-        />
-        <text x="70" y="66" textAnchor="middle" fontSize="22" fontWeight="bold" fill="#0A2540">
-          {percent}%
-        </text>
-        <text x="70" y="85" textAnchor="middle" fontSize="10" fill="#64748B">
-          Exam Ready
-        </text>
-      </svg>
-      <span className="mt-2 text-xs font-medium text-accent-600 bg-accent-100 px-3 py-1 rounded-full flex items-center gap-1">
-        <Star className="w-3 h-3 fill-current" /> Topic Mastered
-      </span>
-    </div>
-  );
-}
-
-// ── Stat Card ────────────────────────────────────────────────────
-function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl">{icon}</span>
-      <span className="text-xl font-bold text-primary-900" style={{ fontFamily: 'var(--font-playfair)' }}>
-        {value}
-      </span>
-      <span className="text-xs text-gray-500 text-center">{label}</span>
-    </div>
-  );
-}
-
-// ── Feature Card ─────────────────────────────────────────────────
-function FeatureCard({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
-  return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <span className="text-3xl block mb-3">{icon}</span>
-      <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-// ── Step Card ─────────────────────────────────────────────────────
-function StepCard({ number, title, desc }: { number: string; title: string; desc: string }) {
-  return (
-    <div className="flex gap-4 items-start">
-      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center text-sm">
-        {number}
-      </div>
-      <div>
-        <h4 className="font-semibold text-gray-900 mb-1">{title}</h4>
-        <p className="text-sm text-gray-500">{desc}</p>
-      </div>
-    </div>
-  );
-}
 
 // ── Main Page ─────────────────────────────────────────────────────
 export default function HomePage() {
@@ -89,143 +16,135 @@ export default function HomePage() {
     <main className="min-h-screen bg-white">
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-4 pt-16 pb-20 flex flex-col lg:flex-row items-center gap-12">
-        <div className="flex-1 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-            🇵🇰 Built for Pakistani Students
-          </div>
-          <h1
-            className="text-4xl lg:text-5xl font-bold text-primary-900 leading-tight mb-6"
-            style={{ fontFamily: 'var(--font-playfair)' }}
-          >
-            Pakistan&apos;s Smartest
-            <span className="block text-primary-600">Study Platform</span>
-          </h1>
-          <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-xl">
-            Grade 9–10 board exam prep with AI explanations, past paper frequency analysis,
-            and real progress tracking. Punjab, Federal, and Sindh boards supported.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center gap-2 bg-primary-600 text-white px-7 py-3.5 rounded-xl font-medium text-base hover:bg-primary-700 transition-colors shadow-sm"
-            >
-              Start Studying Free →
-            </Link>
-            <Link
-              href="/search"
-              className="inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-7 py-3.5 rounded-xl font-medium text-base hover:bg-gray-50 transition-colors"
-            >
-              Browse Topics
-            </Link>
-          </div>
-        </div>
-        <div className="flex-shrink-0 flex flex-col items-center gap-6">
-          <HeroProgressWheel />
-          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm w-64">
-            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Flame className="w-3 h-3 text-orange-500" /> Hot Topic — Lahore Board</p>
-            <p className="font-semibold text-gray-900 text-sm">Vernier Callipers</p>
-            <p className="text-xs text-gray-400 mt-0.5">Appeared 4 times in past 5 years</p>
+      <section className="max-w-6xl mx-auto px-4 pt-16 pb-20">
+        <div className="flex flex-col lg:flex-row items-center gap-12">
+          {/* LEFT COLUMN */}
+          <FadeIn>
+            <div className="flex-1 text-center lg:text-left">
+              {/* Badge Pill */}
+              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+                🇵🇰 Built for Pakistani Board Exams
+              </div>
+
+              {/* H1 Headline */}
+              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
+                Pakistan&apos;s Smartest<br />
+                <span className="text-emerald-600">Study Platform</span>
+              </h1>
+
+              {/* Body Copy */}
+              <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-xl">
+                AI explanations, past paper frequency tracking, and real progress
+                monitoring. Punjab, FBISE, Karachi, and Sindh boards. Grade 9 and 10.
+              </p>
+
+              {/* CTA Row */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium text-base hover:bg-emerald-700 transition-colors min-h-[44px]"
+                >
+                  Start Studying Free
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/search"
+                  className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 px-6 py-3 rounded-lg font-medium text-base hover:bg-slate-50 transition-colors min-h-[44px]"
+                >
+                  Browse Books
+                </Link>
+              </div>
+
+              {/* Social Proof */}
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-slate-500">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="w-4 h-4 text-emerald-600" />
+                  500+ topics
+                </span>
+                <span className="flex items-center gap-1">
+                  <Flame className="w-4 h-4 text-emerald-600" />
+                  4 boards
+                </span>
+                <span>✓ Free to start</span>
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* RIGHT COLUMN - Exam Readiness Card */}
+          <div className="flex-shrink-0">
+            <ExamReadinessCard />
           </div>
         </div>
       </section>
 
       {/* STATS BAR */}
-      <section className="bg-primary-50 border-y border-primary-100 py-8">
-        <div className="max-w-4xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <StatCard icon={<BookOpen className="w-6 h-6" />} value="500+" label="Topics Live" />
-          <StatCard icon={<Target className="w-6 h-6" />} value="5" label="Boards Supported" />
-          <StatCard icon={<Bot className="w-6 h-6" />} value="AI" label="Powered Explanations" />
-          <StatCard icon={<Flame className="w-6 h-6" />} value="Past" label="Papers Included" />
-        </div>
-      </section>
+      <StatsBar />
 
-      {/* FEATURES */}
+      {/* FEATURE GRID */}
       <section className="max-w-6xl mx-auto px-4 py-20">
-        <div className="text-center mb-12">
-          <h2
-            className="text-3xl font-bold text-primary-900 mb-3"
-            style={{ fontFamily: 'var(--font-playfair)' }}
-          >
-            Everything You Need to Ace Your Boards
-          </h2>
-          <p className="text-gray-500">Built specifically for Pakistani board exam students</p>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <FeatureCard
-            icon={<Flame className="w-8 h-8" />}
-            title="Exam Frequency"
-            desc="See exactly which topics appear most in Lahore, FBISE, and other past papers."
-          />
-          <FeatureCard
-            icon={<Bot className="w-8 h-8" />}
-            title="AI Explain"
-            desc="Get instant simple explanations of any topic. In English, in plain words."
-          />
-          <FeatureCard
-            icon={<BarChart3 className="w-8 h-8" />}
-            title="Progress Wheel"
-            desc="Track exactly how exam-ready you are. Score 80%+ on a quiz to Master a topic."
-          />
-          <FeatureCard
-            icon={<Package className="w-8 h-8" />}
-            title="My Study Vault"
-            desc="Save YouTube links, flashcards, and highlights for quick revision before exams."
-          />
-        </div>
+        <FadeIn>
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 mb-3">
+              Everything You Need to Ace Your Boards
+            </h2>
+            <p className="text-slate-500">Built specifically for Pakistani board exam students</p>
+          </div>
+        </FadeIn>
+        <FeatureGrid />
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="bg-gray-50 py-20">
+      <section className="bg-slate-50 py-20">
         <div className="max-w-2xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2
-              className="text-3xl font-bold text-primary-900 mb-3"
-              style={{ fontFamily: 'var(--font-playfair)' }}
-            >
-              How It Works
-            </h2>
-          </div>
-          <div className="space-y-8">
-            <StepCard
-              number="1"
-              title="Choose Your Subject"
-              desc="Select your board, grade, and subject. We support Punjab, FBISE, Karachi, and more."
-            />
-            <StepCard
-              number="2"
-              title="Read & Practice"
-              desc="Study topics with interactive content — formulas, diagrams, MCQs all in one place."
-            />
-            <StepCard
-              number="3"
-              title="Track Your Mastery"
-              desc="Score 80%+ on a topic quiz to mark it Mastered. Your progress wheel shows exam readiness."
-            />
-          </div>
+          <FadeIn>
+            <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-800 mb-3">
+                How It Works
+              </h2>
+            </div>
+          </FadeIn>
+          <HowItWorks />
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
-        <h2
-          className="text-3xl font-bold text-primary-900 mb-4"
-          style={{ fontFamily: 'var(--font-playfair)' }}
-        >
-          Ready to Ace Your Boards?
-        </h2>
-        <p className="text-gray-500 mb-8">Join thousands of Pakistani students studying smarter.</p>
-        <Link
-          href="/signup"
-          className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors shadow-md"
-        >
-          Create Free Account — It's Free →
-        </Link>
+      {/* FINAL CTA */}
+      <section className="max-w-6xl mx-auto px-4 py-20">
+        <FadeIn>
+          <div className="bg-slate-900 rounded-3xl p-8 md:p-12 text-center text-white">
+            <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+              Ready to Ace Your Boards?
+            </h2>
+            <p className="text-slate-300 mb-8 max-w-md mx-auto">
+              Join students studying smarter — it&apos;s free to start.
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 bg-emerald-500 text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-emerald-400 transition-colors min-h-[44px]"
+            >
+              Open Dashboard
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <p className="text-xs text-slate-400 mt-4">
+              No credit card needed. Free plan includes all core content.
+            </p>
+          </div>
+        </FadeIn>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-gray-100 py-8 text-center text-sm text-gray-400">
-        <p>© 2026 StudyVault PK — Built for Pakistani Students 🇵🇰</p>
+      <footer className="border-t border-slate-100 py-8">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-slate-400">
+            © 2026 StudyVault PK — Built for Pakistani Students 🇵🇰
+          </p>
+          <div className="flex gap-4 text-sm text-slate-500">
+            <Link href="/about" className="hover:text-slate-700 transition-colors">About</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/privacy" className="hover:text-slate-700 transition-colors">Privacy</Link>
+            <span className="text-slate-300">·</span>
+            <Link href="/contact" className="hover:text-slate-700 transition-colors">Contact</Link>
+          </div>
+        </div>
       </footer>
     </main>
   );
