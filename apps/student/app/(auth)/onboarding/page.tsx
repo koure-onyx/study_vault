@@ -5,7 +5,6 @@ import { OnboardingForm } from './onboarding-form';
 export default async function OnboardingPage() {
   const payload = await getJwtPayload() as { userId?: string; onboardingComplete?: boolean } | null;
 
-  if (!payload?.userId) redirect('/signup');
   if (payload.onboardingComplete) redirect('/dashboard');
 
   return (

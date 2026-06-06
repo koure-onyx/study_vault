@@ -10,8 +10,10 @@ import User from '@studyvault/db/models/User';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
+const { userId } = await params;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user?.role !== 'admin') {
@@ -50,7 +52,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);

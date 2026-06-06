@@ -12,8 +12,10 @@ import Topic from '@studyvault/db/models/Topic';
  */
 export async function PATCH(
   request: Request,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
+const { courseId } = await params;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session || session.user?.role !== 'admin') {

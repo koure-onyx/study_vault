@@ -73,3 +73,10 @@ pids/
 tmp/
 temp/
 ```
+
+
+.turbo
+*.tsbuildinfo
+node_modules
+.next
+dist

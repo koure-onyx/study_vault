@@ -37,18 +37,11 @@ async function getUserIdFromRequest(request: NextRequest) {
 
 /**
  * GET /api/dashboard
- * Returns dashboard data for authenticated users
+ * Returns dashboard data for authenticated users and guests.
  */
 export async function GET(request: NextRequest) {
   try {
-    const { userId, error } = await getUserIdFromRequest(request);
-    
-    if (!userId || error) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+    const { userId } = await getUserIdFromRequest(request);
 
     await connectDB();
 
@@ -57,9 +50,18 @@ export async function GET(request: NextRequest) {
       .select('title subject subject_slug program_name board edition_year metadata')
       .lean();
 
+    if (!userId) {
+      return NextResponse.json({
+        books,
+        recentProgress: [],
+        totalXP: 0,
+        masteredCount: 0,
+      });
+    }
+
     // Fetch user progress
-    const progress = await UserProgress.find({ 
-      user_id: userId 
+    const progress = await UserProgress.find({
+      user_id: userId,
     })
       .sort({ updated_at: -1 })
       .limit(5)

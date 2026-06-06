@@ -55,11 +55,11 @@ export function AccountNav({ initialUser = null }: { initialUser?: { name?: stri
               </>
             ) : (
               <>
-                <Link href="/login">
-                  <Button variant="outline" size="sm">Login</Button>
+                <Link href="/dashboard">
+                  <Button variant="outline" size="sm">Dashboard</Button>
                 </Link>
-                <Link href="/signup">
-                  <Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700">Sign Up</Button>
+                <Link href="/books">
+                  <Button size="sm" className="bg-emerald-600 text-white hover:bg-emerald-700">Books</Button>
                 </Link>
               </>
             )}

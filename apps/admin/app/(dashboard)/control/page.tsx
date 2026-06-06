@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring, SpringOptions } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
 // ============================================================================
 // SYNTAX COMPLIANCE: SPRING PRESETS (from syntax-enforcer.md)
@@ -459,7 +458,6 @@ const ReasoningEngineControl: React.FC<ReasoningEngineControlProps> = ({
 // ============================================================================
 export default function AdminControlPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   
   // State management
   const [users, setUsers] = useState<UserRecord[]>([]);
@@ -479,11 +477,6 @@ export default function AdminControlPage() {
 
   // Fetch admin data
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/api/auth/signin?callbackUrl=/control');
-      return;
-    }
-
     const fetchData = async () => {
       try {
         const [usersRes, coursesRes, logsRes, metricsRes] = await Promise.all([
@@ -520,7 +513,7 @@ export default function AdminControlPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [status, router]);
+  }, [status]);
 
   // Simulate system logs (in production, this would come from a WebSocket or SSE)
   useEffect(() => {

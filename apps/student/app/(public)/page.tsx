@@ -16,63 +16,43 @@ export default function HomePage() {
     <main className="min-h-screen bg-white">
 
       {/* HERO */}
-      <section className="max-w-6xl mx-auto px-4 pt-16 pb-20">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          {/* LEFT COLUMN */}
-          <FadeIn>
-            <div className="flex-1 text-center lg:text-left">
-              {/* Badge Pill */}
-              <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
-                🇵🇰 Built for Pakistani Board Exams
-              </div>
-
-              {/* H1 Headline */}
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
-                Pakistan&apos;s Smartest<br />
-                <span className="text-emerald-600">Study Platform</span>
-              </h1>
-
-              {/* Body Copy */}
-              <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-xl">
-                AI explanations, past paper frequency tracking, and real progress
-                monitoring. Punjab, FBISE, Karachi, and Sindh boards. Grade 9 and 10.
-              </p>
-
-              {/* CTA Row */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-6">
-                <Link
-                  href="/signup"
-                  className="inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium text-base hover:bg-emerald-700 transition-colors min-h-[44px]"
-                >
-                  Start Studying Free
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/search"
-                  className="inline-flex items-center justify-center gap-2 border border-slate-200 text-slate-700 px-6 py-3 rounded-lg font-medium text-base hover:bg-slate-50 transition-colors min-h-[44px]"
-                >
-                  Browse Books
-                </Link>
-              </div>
-
-              {/* Social Proof */}
-              <div className="flex flex-wrap gap-4 justify-center lg:justify-start text-sm text-slate-500">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="w-4 h-4 text-emerald-600" />
-                  500+ topics
-                </span>
-                <span className="flex items-center gap-1">
-                  <Flame className="w-4 h-4 text-emerald-600" />
-                  4 boards
-                </span>
-                <span>✓ Free to start</span>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* RIGHT COLUMN - Exam Readiness Card */}
-          <div className="flex-shrink-0">
-            <ExamReadinessCard />
+      <section className="max-w-6xl mx-auto px-4 pt-16 pb-20 flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex-1 text-center lg:text-left">
+          <div className="inline-flex items-center gap-2 bg-primary-50 text-primary-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
+            🇵🇰 Built for Pakistani Students
+          </div>
+          <h1
+            className="text-4xl lg:text-5xl font-bold text-primary-900 leading-tight mb-6"
+            style={{ fontFamily: 'var(--font-playfair)' }}
+          >
+            Pakistan&apos;s Smartest
+            <span className="block text-primary-600">Study Platform</span>
+          </h1>
+          <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-xl">
+            Grade 9–10 board exam prep with AI explanations, past paper frequency analysis,
+            and real progress tracking. Punjab, Federal, and Sindh boards supported.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center gap-2 bg-primary-600 text-white px-7 py-3.5 rounded-xl font-medium text-base hover:bg-primary-700 transition-colors shadow-sm"
+            >
+              Start Exploring →
+            </Link>
+            <Link
+              href="/search"
+              className="inline-flex items-center justify-center gap-2 border border-gray-200 text-gray-700 px-7 py-3.5 rounded-xl font-medium text-base hover:bg-gray-50 transition-colors"
+            >
+              Browse Topics
+            </Link>
+          </div>
+        </div>
+        <div className="flex-shrink-0 flex flex-col items-center gap-6">
+          <HeroProgressWheel />
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm w-64">
+            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Flame className="w-3 h-3 text-orange-500" /> Hot Topic — Lahore Board</p>
+            <p className="font-semibold text-gray-900 text-sm">Vernier Callipers</p>
+            <p className="text-xs text-gray-400 mt-0.5">Appeared 4 times in past 5 years</p>
           </div>
         </div>
       </section>
@@ -107,28 +87,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <FadeIn>
-          <div className="bg-slate-900 rounded-3xl p-8 md:p-12 text-center text-white">
-            <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-              Ready to Ace Your Boards?
-            </h2>
-            <p className="text-slate-300 mb-8 max-w-md mx-auto">
-              Join students studying smarter — it&apos;s free to start.
-            </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center gap-2 bg-emerald-500 text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-emerald-400 transition-colors min-h-[44px]"
-            >
-              Open Dashboard
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <p className="text-xs text-slate-400 mt-4">
-              No credit card needed. Free plan includes all core content.
-            </p>
-          </div>
-        </FadeIn>
+      {/* CTA */}
+      <section className="max-w-6xl mx-auto px-4 py-20 text-center">
+        <h2
+          className="text-3xl font-bold text-primary-900 mb-4"
+          style={{ fontFamily: 'var(--font-playfair)' }}
+        >
+          Ready to Ace Your Boards?
+        </h2>
+        <p className="text-gray-500 mb-8">Join thousands of Pakistani students studying smarter.</p>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors shadow-md"
+        >
+          Open the Dashboard →
+        </Link>
       </section>
 
       {/* FOOTER */}
