@@ -51,20 +51,20 @@ const { courseId } = await params;
     } else if (type === 'chapter') {
       // Update all topics in a chapter
       result = await Topic.updateMany(
-        { chapter_id: params.courseId },
+        { chapter_id: courseId },
         { workflow_status: workflowStatus }
       );
     } else if (type === 'book') {
       // Update book live status
       result = await Book.findByIdAndUpdate(
-        params.courseId,
+        courseId,
         { is_live: workflowStatus === 'live' },
         { new: true, runValidators: true }
       );
     } else {
       // Default: update chapter workflow status (affects topics)
       result = await Chapter.findByIdAndUpdate(
-        params.courseId,
+        courseId,
         {},
         { new: true, runValidators: true }
       ).populate('topics');
