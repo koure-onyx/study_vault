@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Calendar, Zap, BookOpen, Archive, TrendingUp } from "lucide-react";
+import { Flame, Calendar, Zap, BookOpen, Archive, TrendingUp, FolderKanban, Save } from "lucide-react";
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -193,8 +193,9 @@ export function HotTopicsCard({ topics }: HotTopicsCardProps) {
       className="bg-white border border-slate-100 rounded-2xl p-6"
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-800">
-          🔥 Hot Topics This Week
+        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <Flame className="w-5 h-5 text-amber-500" aria-hidden="true" />
+          Hot Topics This Week
         </h3>
         <a href="/hot-topics" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
           See all →
@@ -270,7 +271,10 @@ export function VaultSnapshotCard({ items }: VaultSnapshotCardProps) {
       className="bg-white border border-slate-100 rounded-2xl p-6"
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-slate-800">📦 My Vault</h3>
+        <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <Archive className="w-5 h-5 text-emerald-600" aria-hidden="true" />
+          My Vault
+        </h3>
         <a href="/vault" className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
           Open Vault →
         </a>
@@ -280,7 +284,9 @@ export function VaultSnapshotCard({ items }: VaultSnapshotCardProps) {
         <div className="text-center py-6">
           <Archive className="w-10 h-10 text-slate-300 mx-auto mb-2" aria-hidden="true" />
           <p className="text-sm text-slate-500 mb-1">Nothing saved yet</p>
-          <p className="text-xs text-slate-400">Tap 💾 on any topic to save it</p>
+          <p className="text-xs text-slate-400 flex items-center justify-center gap-1">
+            <Save className="w-3 h-3" /> Tap Save on any topic to save it
+          </p>
         </div>
       ) : (
         <div className="space-y-3">

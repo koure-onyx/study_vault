@@ -55,7 +55,7 @@ export default function SaveToVaultButton({ topicId, topicTitle, initialSaved = 
       ) : (
         <Archive className="h-4 w-4" />
       )}
-      {isSaved ? "✅ Saved" : "💾 Save to Vault"}
+      {isSaved ? "Saved" : "Save to Vault"}
     </Button>
   );
 }

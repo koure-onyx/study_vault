@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Star, Check, ArrowRight } from "lucide-react";
+import { Flame, Star, Check, ArrowRight, BookOpen, Building2, Sparkles, FileText } from "lucide-react";
 
 interface HeroAnimatedProps {
   children: React.ReactNode;
@@ -175,10 +175,10 @@ export function ExamReadinessCard() {
 
 export function StatsBar() {
   const stats = [
-    { icon: "📚", value: "500+", label: "Topics Live" },
-    { icon: "🏫", value: "5", label: "Boards Supported" },
-    { icon: "🤖", value: "AI", label: "Powered Explanations" },
-    { icon: "📄", value: "Past", label: "Papers Included" },
+    { icon: BookOpen, value: "500+", label: "Topics Live", color: "text-emerald-600" },
+    { icon: Building2, value: "5", label: "Boards Supported", color: "text-blue-600" },
+    { icon: Sparkles, value: "AI", label: "Powered Explanations", color: "text-purple-600" },
+    { icon: FileText, value: "Past", label: "Papers Included", color: "text-amber-600" },
   ];
 
   return (
@@ -200,7 +200,7 @@ export function StatsBar() {
               transition={{ duration: 0.4, delay: idx * 0.07 }}
               className="flex flex-col items-center gap-1"
             >
-              <span className="text-2xl">{stat.icon}</span>
+              <stat.icon className={`w-6 h-6 ${stat.color}`} />
               <span className="text-xl font-bold text-slate-900">{stat.value}</span>
               <span className="text-xs text-slate-500 text-center">{stat.label}</span>
             </motion.div>

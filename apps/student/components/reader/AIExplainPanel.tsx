@@ -72,7 +72,10 @@ export default function AIExplainPanel({ isOpen, onClose, topicId, topicTitle }:
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-slate-900">🤖 AI Explain</h2>
+            <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" aria-hidden="true" />
+              AI Explain
+            </h2>
             <button
               onClick={onClose}
               className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
