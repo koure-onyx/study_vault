@@ -3,23 +3,39 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronDown, ChevronRight, Loader2, List } from 'lucide-react';
+import { ChevronDown, ChevronRight, Loader2, List, BookOpen, Flame, CheckCircle, ArrowRight } from 'lucide-react';
 import { topicUrl } from '@/lib/reader-urls';
+import { StickyProgressBar } from './StickyProgressBar';
+import { ChapterProgressDots } from './ChapterProgressDots';
+import { TopicStatusBadge } from './TopicStatusBadge';
+import { QuickQuizButton } from './QuickQuizButton';
 
 type Chapter = {
   _id: string;
   chapter_number: number;
   title: string;
   slug: string;
+  topics?: Array<{
+    _id: string;
+    slug: string;
+    title: string;
+    topic_number?: string;
+    display_order?: number;
+    estimated_read_time?: number;
+    isRead?: boolean;
+    quizScore?: number;
+    exam_frequency_count?: number;
+  }>;
 };
 
 type BookChapterIndexProps = {
   book: {
+    _id?: string;
     title: string;
     subject?: string;
     subject_slug?: string;
     edition_year?: number;
-    board_id?: { name?: string } | null;
+    board_id?: { name?: string; short_code?: string; slug?: string } | null;
     metadata?: { grade_level?: string };
   };
   program: { name: string; slug?: string };
@@ -28,6 +44,12 @@ type BookChapterIndexProps = {
   boardSlug?: string;
   programSlug?: string;
   grade?: string;
+  userProgress?: {
+    totalTopics: number;
+    readTopics: number;
+    lastReadTopicSlug?: string;
+    chapterProgress?: Record<string, { readCount: number; totalCount: number; topics: any[] }>;
+  };
 };
 
 type TopicSummary = {
@@ -39,7 +61,7 @@ type TopicSummary = {
   estimated_read_time?: number;
 };
 
-export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSlug, programSlug, grade }: BookChapterIndexProps) {
+export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSlug, programSlug, grade, userProgress }: BookChapterIndexProps) {
   const opts = boardSlug || programSlug || grade ? { boardSlug, programSlug, grade } : undefined;
   const firstChapter = chapters[0];
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
@@ -50,6 +72,11 @@ export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSl
   const searchParams = useSearchParams();
 
   const previewParam = searchParams.get('preview') === 'true' ? '?preview=true' : '';
+
+  // Calculate total topics and progress
+  const totalTopicsCount = chapters.reduce((acc, ch) => acc + (ch.topics?.length || 0), 0);
+  const readTopicsCount = userProgress?.readTopics || 0;
+  const percentage = totalTopicsCount > 0 ? Math.round((readTopicsCount / totalTopicsCount) * 100) : 0;
 
   async function toggleChapter(chapter: Chapter) {
     const willExpand = !expandedChapters[chapter._id];
@@ -81,21 +108,77 @@ export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSl
     }
   }
 
+  const boardName = book.board_id?.name || book.board_id?.short_code || 'Board';
+  const boardDisplayName = boardName.toUpperCase();
+
   return (
     <div className="min-h-screen bg-slate-50 pb-28">
+      {/* Sticky Progress Bar */}
+      <StickyProgressBar
+        bookTitle={`${book.subject || book.title} ${grade || ''}`}
+        totalTopics={totalTopicsCount}
+        readTopics={readTopicsCount}
+        lastReadTopicSlug={userProgress?.lastReadTopicSlug}
+      />
+
+      {/* Quick Quiz Button */}
+      {book._id && <QuickQuizButton bookId={book._id} />}
+
       <div className="mx-auto max-w-3xl px-4 py-10 md:px-8 md:py-14">
         <section className="rounded-2xl border border-slate-200 bg-gradient-to-b from-amber-50/90 via-white to-white p-8 shadow-sm md:p-12">
-          <div className="border-b border-slate-200 pb-8 text-center">
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
-              {program.name}
-              {book.board_id?.name ? ` • ${book.board_id.name}` : ''}
-            </p>
-            <h1 className="mt-4 font-display text-3xl font-black text-slate-950 md:text-5xl">
-              {book.title}
-            </h1>
-            <p className="mt-2 text-sm text-slate-600">
-              {book.subject || book.title} — {book.edition_year || new Date().getFullYear()}
-            </p>
+          {/* Header with Board Badge and Progress Panel */}
+          <div className="border-b border-slate-200 pb-8">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              {/* Left: Title Section */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 bg-slate-200/60 px-2 py-1 rounded-md">
+                    {boardDisplayName}
+                  </span>
+                  {grade && (
+                    <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 bg-slate-200/60 px-2 py-1 rounded-md">
+                      {grade.toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <h1 className="font-display text-3xl font-black text-slate-950 md:text-5xl">
+                  {book.title}
+                </h1>
+                <p className="mt-2 text-sm text-slate-600">
+                  {book.subject || book.title} — {book.edition_year || new Date().getFullYear()}
+                </p>
+              </div>
+
+              {/* Right: Progress Panel */}
+              {userProgress && totalTopicsCount > 0 && (
+                <div className="bg-white/70 backdrop-blur-sm border border-slate-200 rounded-xl p-4 min-w-[200px]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+                      Your Progress
+                    </span>
+                    <span className="text-lg font-bold text-emerald-600">{percentage}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden mb-2">
+                    <div
+                      className="h-full bg-emerald-600 transition-all duration-500 ease-out"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3">
+                    {readTopicsCount} / {totalTopicsCount} topics read
+                  </p>
+                  {userProgress.lastReadTopicSlug && (
+                    <Link
+                      href={userProgress.lastReadTopicSlug}
+                      className="flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition-colors"
+                    >
+                      Continue Reading
+                      <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="pt-8">
@@ -131,9 +214,24 @@ export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSl
                         <span className="block font-display text-lg font-semibold text-slate-900 group-hover:text-indigo-800">
                           {chapter.title}
                         </span>
-                        <span className="mt-1 block text-xs font-medium text-slate-500">
-                          {isExpanded ? 'Hide topics' : 'Show topics'}
-                        </span>
+                        <div className="mt-1 flex items-center gap-3">
+                          <span className="text-xs font-medium text-slate-500">
+                            {isExpanded ? 'Hide topics' : 'Show topics'}
+                          </span>
+                          {/* Topic count badge */}
+                          <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                            {chapter.topics?.length || topics.length} topics
+                          </span>
+                          {/* Chapter progress dots - hidden on mobile */}
+                          {(chapter.topics?.length || topics.length) > 0 && (
+                            <div className="hidden sm:block">
+                              <ChapterProgressDots
+                                topics={chapter.topics || topics}
+                                maxDots={8}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </span>
                       {isLoading ? (
                         <Loader2 className="h-5 w-5 shrink-0 animate-spin text-slate-400" />
@@ -171,12 +269,25 @@ export function BookChapterIndex({ book, program, chapters, subjectSlug, boardSl
                                     <span className="w-12 shrink-0 tabular-nums text-xs font-semibold text-slate-400 group-hover:text-emerald-600">
                                       {label}
                                     </span>
-                                    <span className="min-w-0 flex-1 line-clamp-2">{topic.title}</span>
-                                    {topic.estimated_read_time ? (
-                                      <span className="shrink-0 text-xs text-slate-400">
-                                        {topic.estimated_read_time}m
+                                    <div className="min-w-0 flex-1 flex items-center gap-2">
+                                      <span className="line-clamp-2">{topic.title}</span>
+                                      {/* Topic Status Badges */}
+                                      <TopicStatusBadge
+                                        isRead={topic.isRead}
+                                        quizScore={topic.quizScore}
+                                        examFrequencyCount={topic.exam_frequency_count}
+                                      />
+                                    </div>
+                                    <div className="flex items-center gap-3 shrink-0">
+                                      {topic.estimated_read_time ? (
+                                        <span className="text-xs text-slate-400">
+                                          {topic.estimated_read_time}m
+                                        </span>
+                                      ) : null}
+                                      <span className="text-xs font-medium text-emerald-700 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        Quiz →
                                       </span>
-                                    ) : null}
+                                    </div>
                                   </Link>
                                 </li>
                               );

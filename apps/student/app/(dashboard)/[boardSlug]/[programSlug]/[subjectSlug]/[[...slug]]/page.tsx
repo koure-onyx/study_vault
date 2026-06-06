@@ -120,6 +120,7 @@ export default async function ReaderPage({
         boardSlug={resolvedBoardSlug}
         programSlug={activeProgramSlug}
         grade={activeGrade}
+        userProgress={data.userProgress}
       />
     );
   }
