@@ -107,10 +107,10 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
             <Link
-              href="/signup"
+              href="/dashboard"
               className="inline-flex items-center justify-center gap-2 bg-primary-600 text-white px-7 py-3.5 rounded-xl font-medium text-base hover:bg-primary-700 transition-colors shadow-sm"
             >
-              Start Studying Free →
+              Start Exploring →
             </Link>
             <Link
               href="/search"
@@ -216,10 +216,10 @@ export default function HomePage() {
         </h2>
         <p className="text-gray-500 mb-8">Join thousands of Pakistani students studying smarter.</p>
         <Link
-          href="/signup"
+          href="/dashboard"
           className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-primary-700 transition-colors shadow-md"
         >
-          Create Free Account — It's Free →
+          Open the Dashboard →
         </Link>
       </section>
 

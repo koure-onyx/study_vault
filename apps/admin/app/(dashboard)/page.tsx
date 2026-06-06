@@ -7,6 +7,8 @@ import _Book from '@studyvault/db/models/Book';
 import _Topic from '@studyvault/db/models/Topic';
 import '@studyvault/db/models/Program';
 
+export const dynamic = 'force-dynamic';
+
 const User = _User as any;
 const Book = _Book as any;
 const Topic = _Topic as any;

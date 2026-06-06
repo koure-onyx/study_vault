@@ -3,9 +3,8 @@
 import { ReactNode, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoadingProvider, useLoading } from "./LoadingProvider";
+import { LoadingProvider } from "./LoadingProvider";
 import { BottomNavigation } from "../navigation/BottomNavigation";
-import { WaveformLoader } from "./WaveformLoader";
 
 interface AppShellProps {
   children: ReactNode;
@@ -13,13 +12,7 @@ interface AppShellProps {
   showHeader?: boolean;
 }
 
-function AuthLoadingState() {
-  return (
-    <div className="min-h-screen bg-stone-50 flex items-center justify-center">
-      <WaveformLoader />
-    </div>
-  );
-}
+
 
 function DesktopHeader({ title, session }: { title?: string; session: any }) {
   return (
@@ -69,7 +62,7 @@ function DesktopHeader({ title, session }: { title?: string; session: any }) {
 
 function ShellContent({ children, title }: { children: ReactNode; title?: string }) {
   const [isMobile, setIsMobile] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   useEffect(() => {
     const checkMobile = () => {
@@ -80,11 +73,6 @@ function ShellContent({ children, title }: { children: ReactNode; title?: string
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  // Show loading state while checking auth
-  if (status === "loading") {
-    return <AuthLoadingState />;
-  }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">

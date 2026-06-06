@@ -12,14 +12,15 @@ export async function requireAuth(request) {
   const token = header.startsWith('Bearer ') ? header.slice(7) : cookieToken;
   
   if (!token) {
-    throw Response.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    // No token – treat as guest (unauthenticated)
+    return null;
   }
 
   let decoded;
   try {
     decoded = verifyToken(token);
   } catch {
-    throw Response.json({ success: false, error: 'Invalid or expired token' }, { status: 401 });
+    return null;
   }
 
   await connectDB();
@@ -34,10 +35,17 @@ export async function requireAuth(request) {
   return user;
 }
 
-export async function requireAdmin(request) {
-  const user = await requireAuth(request);
-  if (!['admin', 'superadmin'].includes(user.role)) {
-    throw Response.json({ success: false, error: 'Forbidden — admin only' }, { status: 403 });
+  try {
+    const user = await requireAuth(request);
+    if (!user) {
+      // Guest user – skip admin check
+      return null;
+    }
+    if (!['admin', 'superadmin'].includes(user.role)) {
+      throw Response.json({ success: false, error: 'Forbidden — admin only' }, { status: 403 });
+    }
+    return user;
+  } catch (err) {
+    // If requireAuth returns null, just propagate null
+    return null;
   }
-  return user;
-}

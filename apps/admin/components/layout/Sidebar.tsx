@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
-import { cn } from '@study-vault/ui';
+import { cn } from '../../lib/utils';
 import type { NavItem } from '../../lib/navigation-map';
 
 interface SidebarProps {

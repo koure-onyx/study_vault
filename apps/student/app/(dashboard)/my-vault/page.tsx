@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/Input';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { BookOpen, Filter, Library, Search } from 'lucide-react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import connectDB from '@studyvault/db/connect';
 import _Book from '@studyvault/db/models/Book';
 import '@studyvault/db/models/Program';
@@ -23,12 +22,8 @@ export default async function MyVaultPage({ searchParams }: { searchParams: { pr
   await connectDB();
   const user = await getUser();
 
-  if (!user) {
-    redirect('/login?next=/my-vault');
-  }
-
-  const contentProfile = await resolveUserContentProfile(user);
-  const bookFilter = buildBookFilter(contentProfile);
+  const contentProfile = user ? await resolveUserContentProfile(user) : null;
+  const bookFilter = contentProfile ? buildBookFilter(contentProfile) : { is_live: true };
 
   const books = await Book.find(bookFilter)
     .sort({ title: 1 })

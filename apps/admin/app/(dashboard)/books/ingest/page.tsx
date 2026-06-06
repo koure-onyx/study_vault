@@ -78,27 +78,34 @@ export default function BooksIngestPage() {
     }
   };
 
-  const handleJsonPaste = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
-    setFormData(prev => ({ ...prev, jsonPayload: value }));
-    
-    // Auto-extract metadata from JSON if available
-    try {
-      const parsed = JSON.parse(value);
-      if (parsed.book_metadata) {
-        setFormData(prev => ({
-          ...prev,
-          title: prev.title || parsed.book_metadata.title || '',
-          gradeLevel: prev.gradeLevel || parsed.book_metadata.grade_level || '',
-          board: prev.board || parsed.book_metadata.board || '',
-          subject: prev.subject || parsed.book_metadata.subject || '',
-          description: prev.description || parsed.book_metadata.description || '',
-          coverImageUrl: prev.coverImageUrl || parsed.book_metadata.cover_image_url || '',
-        }));
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const value = event.target?.result as string;
+      setFormData(prev => ({ ...prev, jsonPayload: value }));
+      
+      // Auto-extract metadata from JSON if available
+      try {
+        const parsed = JSON.parse(value);
+        if (parsed.book_metadata) {
+          setFormData(prev => ({
+            ...prev,
+            title: prev.title || parsed.book_metadata.title || '',
+            gradeLevel: prev.gradeLevel || parsed.book_metadata.grade_level || '',
+            board: prev.board || parsed.book_metadata.board || '',
+            subject: prev.subject || parsed.book_metadata.subject || '',
+            description: prev.description || parsed.book_metadata.description || '',
+            coverImageUrl: prev.coverImageUrl || parsed.book_metadata.cover_image_url || '',
+          }));
+        }
+      } catch {
+        // Invalid JSON, ignore auto-fill
       }
-    } catch {
-      // Invalid JSON, ignore auto-fill
-    }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -252,29 +259,21 @@ export default function BooksIngestPage() {
             <label htmlFor="jsonPayload" className="block text-sm font-medium text-gray-700 mb-1">
               DeepSeek JSON Format
             </label>
-            <textarea
-              id="jsonPayload"
+            <input
+              type="file"
+              id="jsonFile"
+              accept=".json"
               required
-              rows={12}
-              value={formData.jsonPayload}
-              onChange={handleJsonPaste}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors font-mono text-sm"
-              placeholder={`{
-  "book_metadata": {
-    "title": "...",
-    "grade_level": "...",
-    "board": "...",
-    "subject": "..."
-  },
-  "chapter": {
-    "title": "...",
-    "number": 1
-  },
-  "topics": [...]
-}`}
+              onChange={handleFileUpload}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
             />
+            {formData.jsonPayload && (
+              <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
+                <CheckCircle className="h-4 w-4" /> JSON loaded successfully
+              </p>
+            )}
             <p className="mt-2 text-sm text-gray-500">
-              Paste your DeepSeek-generated JSON here. Metadata will be auto-extracted if available.
+              Select your DeepSeek-generated JSON file here. Metadata will be auto-extracted if available.
             </p>
           </div>
         </div>
@@ -305,9 +304,9 @@ export default function BooksIngestPage() {
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <h3 className="font-semibold text-gray-900 mb-3">How to use:</h3>
         <ol className="space-y-2 text-sm text-gray-600 list-decimal list-inside">
-          <li>Generate curriculum content using DeepSeek AI with the book ingestion prompt.</li>
-          <li>Copy the complete JSON output including <code className="bg-gray-200 px-1 rounded">book_metadata</code>, <code className="bg-gray-200 px-1 rounded">chapter</code>, and <code className="bg-gray-200 px-1 rounded">topics</code>.</li>
-          <li>Paste the JSON in the payload field above - metadata will auto-fill.</li>
+          <li>Generate curriculum content using DeepSeek AI with the book ingestion prompt and save it as a <code className="bg-gray-200 px-1 rounded">.json</code> file.</li>
+          <li>The file must contain <code className="bg-gray-200 px-1 rounded">book_metadata</code>, <code className="bg-gray-200 px-1 rounded">chapter</code>, and <code className="bg-gray-200 px-1 rounded">topics</code>.</li>
+          <li>Select the JSON file in the payload field above - metadata will auto-fill.</li>
           <li>Review and adjust metadata if needed.</li>
           <li>Click &quot;Start Ingestion&quot; to process the content.</li>
           <li>The system will create or update books, chapters, and topics intelligently.</li>

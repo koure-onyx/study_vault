@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { cn } from '@study-vault/ui';
+import { cn } from '../../lib/utils';
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -12,10 +12,10 @@ const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
 export function LoadingProvider({ 
   children, 
-  isLoading: initialLoading 
+  isLoading: initialLoading = false
 }: { 
   children: React.ReactNode;
-  isLoading: boolean;
+  isLoading?: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(initialLoading);
 

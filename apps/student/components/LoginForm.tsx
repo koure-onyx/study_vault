@@ -10,8 +10,8 @@ export function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const searchParams = useSearchParams();
-  const nextPath = searchParams.get('next');
-  const safeNextPath = nextPath && nextPath.startsWith('/') ? nextPath : null;
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('next');
+  const safeCallbackUrl = callbackUrl && callbackUrl.startsWith('/') ? callbackUrl : null;
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -30,9 +30,9 @@ export function LoginForm() {
         return;
       }
 
-      const destination =
-        safeNextPath ||
-        (data.data.user.onboardingComplete ? '/dashboard' : '/onboarding');
+      const destination = data.data.user.onboardingComplete
+        ? safeCallbackUrl || '/dashboard'
+        : '/onboarding';
       window.location.replace(destination);
     } catch {
       setError('Network error. Please try again.');
@@ -77,7 +77,7 @@ export function LoginForm() {
         disabled={loading}
         className="w-full bg-primary-600 text-white py-3 rounded-xl font-medium hover:bg-primary-700 transition-colors disabled:opacity-60"
       >
-        {loading ? 'Logging in...' : 'Login to StudyVault'}
+        {loading ? 'Signing in...' : 'Sign in to StudyVault'}
       </button>
 
       <div className="relative my-6">

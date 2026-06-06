@@ -143,6 +143,11 @@ export default async function ReaderPage({
       programSlug = normalizedSlugs[0];
       subjectSlug = normalizedSlugs[1];
     }
+  } else if (normalizedSlugs.length >= 3 && isGradeSegment(normalizedSlugs[0])) {
+    // Legacy grade-first URLs like /grade-9/english/chapter-1/topic
+    programSlug = normalizedSlugs[0];
+    subjectSlug = normalizedSlugs[1];
+    readerPath = normalizedSlugs.slice(2);
   } else if (normalizedSlugs.length === 3) {
     if (isGradeSegment(normalizedSlugs[1])) {
       // subject/grade-X/chapter-X or subject/grade-X/topic

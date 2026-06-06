@@ -11,6 +11,7 @@
     "./auth/middleware": "./auth/middleware.js",
     "./auth/server": "./auth/server.js",
     "./auth/options": "./auth/options.ts",
+    "./ingestion/IngestionEngine": "./ingestion/IngestionEngine.ts",
     "./ingestion/ingestBook": "./ingestion/ingestBook.js",
     "./seo/jsonLd": "./seo/jsonLd.js",
     "./utils/slug": "./utils/slug.js",

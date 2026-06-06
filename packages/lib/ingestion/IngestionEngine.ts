@@ -52,11 +52,13 @@ function computeHash(text: string): string {
 }
 
 function generateSlug(text: string): string {
+  if (!text) return '';
   return text
     .toLowerCase()
-    .replace(/[^w\s-]/g, '')
+    .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '')
     .trim();
 }
 
@@ -106,6 +108,7 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
       board = await Board.create({
         name: book_metadata.board,
         slug: generateSlug(book_metadata.board),
+        short_code: book_metadata.board.substring(0, 10).toUpperCase(),
         program_id: program._id,
       });
       log.push(`Created board: ${board.name}`);

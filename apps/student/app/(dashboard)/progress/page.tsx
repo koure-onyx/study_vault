@@ -24,9 +24,9 @@ export default async function ProgressPage() {
       <AppShell>
         <PageContainer title="Progress">
           <div className="text-center py-12">
-            <p className="text-text-secondary">Please login to view your progress.</p>
-            <Button variant="primary" className="mt-4" onClick={() => window.location.href = '/login'}>
-              Login
+            <p className="text-text-secondary">Open the dashboard to view your progress.</p>
+            <Button variant="primary" className="mt-4" onClick={() => window.location.href = '/dashboard'}>
+              Open Dashboard
             </Button>
           </div>
         </PageContainer>
