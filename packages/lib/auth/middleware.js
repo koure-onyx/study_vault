@@ -15,7 +15,7 @@ export async function requireAuth(req) {
 
     if (!token) return null
 
-    const decoded = jwt.verify(token, process.env.MONGODB_JWT_SECRET)
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || process.env.MONGODB_JWT_SECRET)
     return decoded
   } catch {
     return null

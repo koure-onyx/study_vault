@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Flame } from 'lucide-react';
-import { FadeIn, ExamReadinessCard, StatsBar, FeatureGrid, HowItWorks } from './HeroAnimated';
+import { FadeIn, HeroProgressWheel, StatsBar, FeatureGrid, HowItWorks } from './HeroAnimated';
 
 export const metadata: Metadata = {
   title: "Pakistan's Smartest Study Platform | Ace Your Boards",

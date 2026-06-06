@@ -21,6 +21,74 @@ export function FadeIn({ children, delay = 0 }: { children: React.ReactNode; del
   );
 }
 
+export function HeroProgressWheel() {
+  const percent = 72;
+  const r = 48;
+  const circ = 2 * Math.PI * r;
+  const filled = (percent / 100) * circ;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96, y: 18 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="relative"
+    >
+      <div className="absolute inset-0 -z-10 rounded-full bg-emerald-200/40 blur-3xl" />
+      <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.28)]">
+        <div className="flex flex-col items-center">
+          <svg width="160" height="160" viewBox="0 0 160 160" aria-hidden="true">
+            <circle
+              cx="80"
+              cy="80"
+              r={r}
+              fill="none"
+              stroke="#E2E8F0"
+              strokeWidth="12"
+            />
+            <circle
+              cx="80"
+              cy="80"
+              r={r}
+              fill="none"
+              stroke="#059669"
+              strokeWidth="12"
+              strokeDasharray={`${filled} ${circ}`}
+              strokeDashoffset={circ / 4}
+              strokeLinecap="round"
+              transform="rotate(-90 80 80)"
+            />
+            <text
+              x="80"
+              y="74"
+              textAnchor="middle"
+              fontSize="24"
+              fontWeight="700"
+              fill="#0F172A"
+            >
+              {percent}%
+            </text>
+            <text
+              x="80"
+              y="96"
+              textAnchor="middle"
+              fontSize="11"
+              fill="#64748B"
+            >
+              Readiness
+            </text>
+          </svg>
+
+          <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            <Check className="h-3.5 w-3.5" />
+            On Track for Boards
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function ExamReadinessCard() {
   const percent = 87;
   const r = 52;

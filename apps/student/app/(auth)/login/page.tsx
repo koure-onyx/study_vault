@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { authOptions } from '@studyvault/lib/auth/options'
 import LoginClient from './login-client'
 
 export default async function LoginPage() {

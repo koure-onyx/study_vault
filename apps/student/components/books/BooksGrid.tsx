@@ -10,7 +10,11 @@ interface Book {
   _id: string;
   title: string;
   subject: string;
+  subject_slug?: string;
+  slug?: string;
   board: string;
+  board_slug?: string;
+  program_slug?: string;
   grade: number;
   edition: string;
   chapters: number;

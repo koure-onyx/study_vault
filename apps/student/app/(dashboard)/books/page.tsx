@@ -15,8 +15,8 @@ interface RawBook {
   title: string;
   subject: string;
   subject_slug?: string;
-  grade: number;
   slug: string;
+  grade: number;
   board_id?: {
     name: string;
     short_code?: string;

@@ -42,7 +42,7 @@ export function BooksFilterBar({ books, onFilterChange }: BooksFilterBarProps) {
   }, [books]);
 
   const grades = useMemo(() => {
-    const unique = Array.from(new Set(books.map((b) => b.grade)));
+    const unique = Array.from(new Set(books.map((b) => String(b.grade))));
     return ["all", ...unique];
   }, [books]);
 
@@ -69,7 +69,7 @@ export function BooksFilterBar({ books, onFilterChange }: BooksFilterBarProps) {
             className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer hover:border-slate-300 transition-colors"
           >
             {boards.map((board) => (
-              <option key={board} value={board}>
+              <option key={String(board)} value={board}>
                 {board === "all" ? "All Boards" : board}
               </option>
             ))}
@@ -85,7 +85,7 @@ export function BooksFilterBar({ books, onFilterChange }: BooksFilterBarProps) {
             className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer hover:border-slate-300 transition-colors"
           >
             {grades.map((grade) => (
-              <option key={grade} value={grade}>
+              <option key={String(grade)} value={grade}>
                 {grade === "all" ? "All Grades" : `Grade ${grade}`}
               </option>
             ))}
@@ -101,7 +101,7 @@ export function BooksFilterBar({ books, onFilterChange }: BooksFilterBarProps) {
             className="appearance-none bg-white border border-slate-200 rounded-lg pl-4 pr-10 py-2.5 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent cursor-pointer hover:border-slate-300 transition-colors"
           >
             {subjects.map((subject) => (
-              <option key={subject} value={subject}>
+              <option key={String(subject)} value={subject}>
                 {subject === "all" ? "All Subjects" : subject}
               </option>
             ))}

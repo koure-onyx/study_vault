@@ -7,9 +7,15 @@ import '@studyvault/db/models/Topic';
 // GET — fetch user's vault items (optionally filtered by topicId or type)
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireAuth(req);
-    if (!user) {
+    const decoded = await requireAuth(req);
+    if (!decoded) {
       return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Extract userId robustly from token payload
+    const userId = decoded.userId || decoded.sub || decoded.id || decoded._id;
+    if (!userId) {
+      return Response.json({ error: 'Invalid token: user ID not found' }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -18,7 +24,7 @@ export async function GET(req: NextRequest) {
     const programId = searchParams.get('programId');
 
     await connectDB();
-    const filter: Record<string, unknown> = { user_id: user._id };
+    const filter: Record<string, unknown> = { user_id: userId };
     if (topicId) filter.topic_id = topicId;
     if (type) filter.type = type;
     if (programId) filter.program_id = programId;
@@ -38,9 +44,15 @@ export async function GET(req: NextRequest) {
 // POST — create a vault item
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth(req);
-    if (!user) {
+    const decoded = await requireAuth(req);
+    if (!decoded) {
       return Response.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Extract userId robustly from token payload
+    const userId = decoded.userId || decoded.sub || decoded.id || decoded._id;
+    if (!userId) {
+      return Response.json({ error: 'Invalid token: user ID not found' }, { status: 401 });
     }
 
     const body = await req.json();
@@ -55,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
     const item = await UserVault.create({
-      user_id: user._id,
+      user_id: userId,
       topic_id: topicId,
       chapter_id: chapterId,
       program_id: programId,

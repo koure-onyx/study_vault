@@ -5,6 +5,7 @@ import { BookOpen, CheckCircle, Lock } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { bookUrl } from '@/lib/reader-urls';
 
 export interface DashboardBook {
   _id: string;
@@ -13,6 +14,8 @@ export interface DashboardBook {
   subject_slug: string;
   program_name: string;
   board: string;
+  board_slug?: string;
+  program_slug?: string;
   edition_year: number;
   total_chapters: number;
   total_topics: number;
@@ -35,7 +38,12 @@ export function BookCard({ book, showProgress = false }: BookCardProps) {
     book.total_chapters > 0 ? (completedChapters / book.total_chapters) * 100 : 0;
 
   const handleClick = () => {
-    router.push(`/books/${book.subject_slug}`);
+    router.push(
+      bookUrl(book.subject_slug, {
+        boardSlug: book.board_slug,
+        programSlug: book.program_slug,
+      })
+    );
   };
 
   return (

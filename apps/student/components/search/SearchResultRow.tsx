@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Flame, Clock, BookOpen, FileText, GraduationCap } from "lucide-react";
 import Link from "next/link";
 

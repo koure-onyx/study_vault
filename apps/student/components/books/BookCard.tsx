@@ -14,12 +14,17 @@ import {
   Lock,
   ArrowRight,
 } from "lucide-react";
+import { bookUrl } from "@/lib/reader-urls";
 
 interface Book {
   _id: string;
   title: string;
   subject: string;
+  subject_slug?: string;
+  slug?: string;
   board: string;
+  board_slug?: string;
+  program_slug?: string;
   grade: number;
   edition: string;
   chapters: number;
@@ -76,6 +81,11 @@ export function BookCard({ book }: BookCard) {
   const config =
     SUBJECT_CONFIG[book.subject] || DEFAULT_SUBJECT_CONFIG;
   const IconComponent = config.icon;
+  const readerHref = bookUrl(book.subject_slug || book.slug || book._id, {
+    boardSlug: book.board_slug,
+    programSlug: book.program_slug,
+    grade: book.grade,
+  });
 
   return (
     <motion.div
@@ -150,7 +160,7 @@ export function BookCard({ book }: BookCard) {
         {/* Action Buttons */}
         <div className="flex flex-col gap-2 pt-2">
           <Link
-            href={`/books/${book._id}`}
+            href={readerHref}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 group/btn"
           >
             Open Book
@@ -160,7 +170,7 @@ export function BookCard({ book }: BookCard) {
           {/* Preview link for draft + admin */}
           {book.isDraft && (
             <Link
-              href={`/books/${book._id}?preview=true`}
+              href={`${readerHref}?preview=true`}
               className="w-full text-center text-slate-600 hover:text-slate-800 text-sm font-medium py-1.5 transition-colors"
             >
               Preview

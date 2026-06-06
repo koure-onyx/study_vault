@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         book_id: topic.book_id,
         program_id: topic.program_id,
         is_read: isRead,
-        scroll_depth_percent,
+        scroll_depth_percent: scrollDepthPercent,
         time_spent_seconds,
         mastery_status: 'in_progress',
         progress_percent: isRead ? 30 : 0, // 30% from reading alone

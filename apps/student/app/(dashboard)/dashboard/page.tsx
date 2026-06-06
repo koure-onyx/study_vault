@@ -4,6 +4,7 @@ import { PageContainer } from "@/components/layout/PageContainer";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard, ContinueStudyingCard, StreakCard, HotTopicsCard, VaultSnapshotCard } from "@/components/dashboard/DashboardComponents";
 import { Zap, BookOpen, Trophy, Flame, Archive, TrendingUp, ChevronRight } from "lucide-react";
+import { bookUrl, chapterUrl } from "@/lib/reader-urls";
 
 // Types
 interface DashboardStats {
@@ -32,6 +33,9 @@ interface Book {
   subject_icon?: string;
   program_name: string;
   board: string;
+  subject_slug: string;
+  board_slug?: string;
+  program_slug?: string;
   total_topics: number;
   topicsRead?: number;
 }
@@ -216,14 +220,20 @@ async function getDashboardData(): Promise<DashboardData> {
         bookTitle: "Physics Grade 10",
         chapterTitle: "Chapter 1: Simple Harmonic Motion",
         progress: 45,
-        href: "/books/physics-10/chapter-1",
+        href: chapterUrl("physics-10", "chapter-1", {
+          boardSlug: "punjab-board",
+          programSlug: "grade-10",
+        }),
       },
       {
         _id: "ch2",
         bookTitle: "Chemistry Grade 10",
         chapterTitle: "Chapter 3: Chemical Bonding",
         progress: 20,
-        href: "/books/chemistry-10/chapter-3",
+        href: chapterUrl("chemistry-10", "chapter-3", {
+          boardSlug: "punjab-board",
+          programSlug: "grade-10",
+        }),
       },
     ],
     books: [
@@ -231,8 +241,11 @@ async function getDashboardData(): Promise<DashboardData> {
         _id: "b1",
         title: "Physics Grade 10",
         subject: "Physics",
+        subject_slug: "physics-10",
         program_name: "Grade 10",
         board: "Punjab Board",
+        board_slug: "punjab-board",
+        program_slug: "grade-10",
         total_topics: 92,
         topicsRead: 14,
       },
@@ -240,8 +253,11 @@ async function getDashboardData(): Promise<DashboardData> {
         _id: "b2",
         title: "Chemistry Grade 10",
         subject: "Chemistry",
+        subject_slug: "chemistry-10",
         program_name: "Grade 10",
         board: "Punjab Board",
+        board_slug: "punjab-board",
+        program_slug: "grade-10",
         total_topics: 78,
         topicsRead: 8,
       },
@@ -249,8 +265,11 @@ async function getDashboardData(): Promise<DashboardData> {
         _id: "b3",
         title: "Mathematics Grade 10",
         subject: "Mathematics",
+        subject_slug: "mathematics-10",
         program_name: "Grade 10",
         board: "Punjab Board",
+        board_slug: "punjab-board",
+        program_slug: "grade-10",
         total_topics: 120,
         topicsRead: 22,
       },
@@ -258,8 +277,11 @@ async function getDashboardData(): Promise<DashboardData> {
         _id: "b4",
         title: "Biology Grade 10",
         subject: "Biology",
+        subject_slug: "biology-10",
         program_name: "Grade 10",
         board: "Punjab Board",
+        board_slug: "punjab-board",
+        program_slug: "grade-10",
         total_topics: 85,
         topicsRead: 5,
       },
@@ -439,7 +461,10 @@ async function DashboardContent() {
                   </div>
                 </div>
                 <a
-                  href={`/books/${book._id}`}
+                  href={bookUrl(book.subject_slug, {
+                    boardSlug: book.board_slug,
+                    programSlug: book.program_slug,
+                  })}
                   className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Open <ChevronRight className="w-3 h-3" />

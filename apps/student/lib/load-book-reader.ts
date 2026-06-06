@@ -51,6 +51,9 @@ export async function loadBookReaderData(
 
   let book: any = null;
   let program: any = null;
+  const subjectMatcher = {
+    $or: [{ subject_slug: subjectSlug }, { slug: subjectSlug }],
+  };
 
   if (opts?.programSlug && opts?.boardSlug) {
     program = await Program.findOne({ slug: opts.programSlug }).lean();
@@ -66,7 +69,7 @@ export async function loadBookReaderData(
     if (!board) notFound();
 
     book = await Book.findOne({
-      subject_slug: subjectSlug,
+      ...subjectMatcher,
       program_id: program._id,
       board_id: board._id,
       is_live: true,
@@ -78,7 +81,7 @@ export async function loadBookReaderData(
 
     if (!book) {
       book = await Book.findOne({
-        subject_slug: subjectSlug,
+        ...subjectMatcher,
         program_id: program._id,
         board_id: board._id,
       })
@@ -93,14 +96,14 @@ export async function loadBookReaderData(
     program = await Program.findOne({ slug: opts.programSlug }).select('name slug').lean();
     if (!program) notFound();
 
-    book = await Book.findOne({ subject_slug: subjectSlug, program_id: program._id, is_live: true })
+    book = await Book.findOne({ ...subjectMatcher, program_id: program._id, is_live: true })
       .sort({ edition_year: -1 })
       .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
       .populate('board_id', 'name slug short_code')
       .lean();
 
     if (!book) {
-      book = await Book.findOne({ subject_slug: subjectSlug, program_id: program._id })
+      book = await Book.findOne({ ...subjectMatcher, program_id: program._id })
         .sort({ edition_year: -1 })
         .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
         .populate('board_id', 'name slug short_code')
@@ -111,7 +114,7 @@ export async function loadBookReaderData(
   } else {
     const contentProfile = user ? await resolveUserContentProfile(user) : null;
     const bookQuery: Record<string, unknown> = {
-      subject_slug: subjectSlug,
+      ...subjectMatcher,
       ...(contentProfile?.programId ? { program_id: contentProfile.programId } : {}),
       ...(contentProfile?.boardId ? { board_id: contentProfile.boardId } : {}),
     };
@@ -123,7 +126,7 @@ export async function loadBookReaderData(
       .lean();
 
     if (!book) {
-      book = await Book.findOne({ subject_slug: subjectSlug, is_current_edition: { $ne: false }, is_live: true })
+      book = await Book.findOne({ ...subjectMatcher, is_current_edition: { $ne: false }, is_live: true })
         .sort({ edition_year: -1 })
         .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
         .populate('board_id', 'name slug short_code')
@@ -131,7 +134,7 @@ export async function loadBookReaderData(
     }
 
     if (!book) {
-      book = await Book.findOne({ subject_slug: subjectSlug, is_live: true })
+      book = await Book.findOne({ ...subjectMatcher, is_live: true })
         .sort({ edition_year: -1 })
         .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
         .populate('board_id', 'name slug short_code')
@@ -147,7 +150,7 @@ export async function loadBookReaderData(
     }
 
     if (!book) {
-      book = await Book.findOne({ subject_slug: subjectSlug, is_current_edition: { $ne: false } })
+      book = await Book.findOne({ ...subjectMatcher, is_current_edition: { $ne: false } })
         .sort({ edition_year: -1 })
         .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
         .populate('board_id', 'name slug short_code')
@@ -155,7 +158,7 @@ export async function loadBookReaderData(
     }
 
     if (!book) {
-      book = await Book.findOne({ subject_slug: subjectSlug })
+      book = await Book.findOne(subjectMatcher)
         .sort({ edition_year: -1 })
         .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
         .populate('board_id', 'name slug short_code')
