@@ -2,6 +2,8 @@
 # Dependencies
 node_modules/
 
+.turbo/
+
 # Build outputs
 dist/
 build/
