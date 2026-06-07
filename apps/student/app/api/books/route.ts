@@ -3,13 +3,13 @@ import connectDB from '@studyvault/db/connect';
 import Book from '@studyvault/db/models/Book';
 import '@studyvault/db/models/Program';
 import '@studyvault/db/models/Board';
-import { getUser } from '@studyvault/lib/auth/server';
+import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 import { buildBookFilter, resolveUserContentProfile } from '@studyvault/lib/content/bookFilter';
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const user = await getUser();
+    const user = await getAuthUser();
     const profile = user
       ? await resolveUserContentProfile(user)
       : null;
