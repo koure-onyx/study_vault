@@ -28,7 +28,6 @@ export type BookReaderData = {
   book: any;
   program: any;
   chapters: any[];
-  topics: any[];
   isLoggedIn: boolean;
   boardSlug?: string;
   programSlug?: string;
@@ -39,38 +38,27 @@ export async function loadBookReaderData(
   subjectSlug: string,
   opts?: { programSlug?: string; boardSlug?: string }
 ): Promise<BookReaderData> {
-
   await connectDB();
   const user = await getAuthUser();
   const isLoggedIn = Boolean(user);
 
-  let book: any = null;
-  let program: any = null;
-  
-  // Normalize subject slug for consistent matching
   const normalizedSubjectSlug = normalizeSlug(subjectSlug);
-  
-  // Single clean query with normalized slug - no fallbacks needed
   const subjectMatcher = {
     $or: [
       { subject_slug: normalizedSubjectSlug },
       { slug: normalizedSubjectSlug },
-      // Handle grade-suffixed subjects (e.g., physics-10 -> physics)
-      ...(normalizedSubjectSlug.includes("-")
-        ? [{ subject_slug: normalizedSubjectSlug.split("-")[0] }]
-        : []),
+      ...(normalizedSubjectSlug.includes('-') ? [{ subject_slug: normalizedSubjectSlug.split('-')[0] }] : []),
     ],
   };
 
+  let book: any = null;
+  let program: any = null;
+
   if (opts?.programSlug && opts?.boardSlug) {
     program = await Program.findOne({ slug: opts.programSlug }).lean();
-    if (!program) {
-      notFound();
-    }
+    if (!program) notFound();
 
     const Board = (await import('@studyvault/db/models/Board')).default as any;
-    
-    // Normalize board slug for better matching
     const normalizedBoardSlug = opts.boardSlug.toLowerCase().replace(/-/g, ' ');
     const board = await Board.findOne({
       $or: [
@@ -80,9 +68,7 @@ export async function loadBookReaderData(
         { name: new RegExp(normalizedBoardSlug, 'i') },
       ],
     }).lean();
-    if (!board) {
-      notFound();
-    }
+    if (!board) notFound();
 
     book = await Book.findOne({
       ...subjectMatcher,
@@ -95,21 +81,7 @@ export async function loadBookReaderData(
       .populate('board_id', 'name slug short_code')
       .lean();
 
-    if (!book) {
-      book = await Book.findOne({
-        ...subjectMatcher,
-        program_id: program._id,
-        board_id: board._id,
-      })
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
-    if (!book) {
-      notFound();
-    }
+    if (!book) notFound();
   } else if (opts?.programSlug) {
     program = await Program.findOne({ slug: opts.programSlug }).select('name slug').lean();
     if (!program) notFound();
@@ -119,14 +91,6 @@ export async function loadBookReaderData(
       .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
       .populate('board_id', 'name slug short_code')
       .lean();
-
-    if (!book) {
-      book = await Book.findOne({ ...subjectMatcher, program_id: program._id })
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
 
     if (!book) notFound();
   } else {
@@ -143,48 +107,7 @@ export async function loadBookReaderData(
       .populate('board_id', 'name slug short_code')
       .lean();
 
-    if (!book) {
-      book = await Book.findOne({ ...subjectMatcher, is_current_edition: { $ne: false }, is_live: true })
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
-    if (!book) {
-      book = await Book.findOne({ ...subjectMatcher, is_live: true })
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
-    if (!book) {
-      book = await Book.findOne(bookQuery)
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
-    if (!book) {
-      book = await Book.findOne({ ...subjectMatcher, is_current_edition: { $ne: false } })
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
-    if (!book) {
-      book = await Book.findOne(subjectMatcher)
-        .sort({ edition_year: -1 })
-        .select('title slug subject subject_slug grade program_id board_id metadata seo edition_year is_live is_current_edition')
-        .populate('board_id', 'name slug short_code')
-        .lean();
-    }
-
     if (!book) notFound();
-
     program = await Program.findById(book.program_id).select('name slug').lean();
     if (!program) notFound();
   }
@@ -193,10 +116,6 @@ export async function loadBookReaderData(
     .sort({ display_order: 1, chapter_number: 1 })
     .select('_id title slug chapter_number chapter_number_display summary summary_urdu seo display_order book_id')
     .lean();
-  
-
-  // Don't load all topics by default - they will be fetched on-demand
-  const topics: any[] = [];
 
   const serializedBoard =
     book.board_id && typeof book.board_id === 'object'
@@ -217,7 +136,6 @@ export async function loadBookReaderData(
       _id: idString(c._id),
       book_id: idString(c.book_id),
     })),
-    topics: [],
     isLoggedIn,
     boardSlug: book.board_id?.short_code || book.board_id?.slug || null,
     programSlug: opts?.programSlug || program.slug,
@@ -263,22 +181,17 @@ export async function loadTopicBySlug(
   grade?: string;
 }> {
   await connectDB();
-  const user = await getUser();
-  const authPayload = await getJwtPayload();
-  const isLoggedIn = Boolean(user || authPayload);
+  const user = await getAuthUser();
+  const isLoggedIn = Boolean(user);
 
-  // Load book and program first
   const bookData = await loadBookReaderData(subjectSlug, opts);
   const { book, program, chapters, boardSlug, programSlug: resolvedProgramSlug, grade } = bookData;
   const activeProgramSlug = opts?.programSlug || resolvedProgramSlug;
 
-  // Find the chapter
   const chapter = findChapterBySlug(chapters, chapterSlug);
-  if (!chapter) {
-    notFound();
-  }
+  if (!chapter) notFound();
 
-  let apiTopic = await Topic.findOne({
+  const apiTopic = await Topic.findOne({
     slug: topicSlug,
     chapter_id: chapter._id,
     book_id: book._id,
@@ -291,28 +204,7 @@ export async function loadTopicBySlug(
     .populate('board_id', 'name slug short_code')
     .lean();
 
-  if (!apiTopic && process.env.NODE_ENV !== 'production') {
-    apiTopic = await Topic.findOne({
-      slug: topicSlug,
-      chapter_id: chapter._id,
-      book_id: book._id,
-    })
-      .select('title slug topic_number display_order difficulty estimated_read_time exam_frequency key_terms book_mcqs book_problems book_short_questions content_blocks chapter_id book_id program_id board_id seo is_live')
-      .populate('chapter_id', 'title chapter_number slug')
-      .populate('book_id', 'title subject subject_slug slug edition_year seo')
-      .populate('program_id', 'name slug')
-      .populate('board_id', 'name slug short_code')
-      .lean();
-
-    if (apiTopic) {
-        `[loadTopicBySlug] Preview topic rendered because it is not live: ${topicSlug} (chapter ${chapter.chapter_number} / book ${book.subject_slug})`
-      );
-    }
-  }
-
-  if (!apiTopic) {
-    notFound();
-  }
+  if (!apiTopic) notFound();
 
   let previousTopic = await Topic.findOne({
     chapter_id: chapter._id,
@@ -374,7 +266,6 @@ export async function loadTopicBySlug(
     }
   }
 
-  // Convert API data to match expected format
   const topic = {
     ...apiTopic,
     _id: idString(apiTopic._id),
@@ -395,17 +286,17 @@ export async function loadTopicBySlug(
   return serializeForClient({
     topic,
     previousTopic: previousTopic
-      ? { 
-          _id: idString(previousTopic._id), 
-          title: previousTopic.title, 
+      ? {
+          _id: idString(previousTopic._id),
+          title: previousTopic.title,
           slug: previousTopic.slug,
           chapterSlug: prevTopicChapterSlug,
         }
       : null,
     nextTopic: nextTopic
-      ? { 
-          _id: idString(nextTopic._id), 
-          title: nextTopic.title, 
+      ? {
+          _id: idString(nextTopic._id),
+          title: nextTopic.title,
           slug: nextTopic.slug,
           chapterSlug: nextTopicChapterSlug,
         }
