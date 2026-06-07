@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@studyvault/lib/auth/options';
-import { jwtVerify } from 'jose';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import User from '@studyvault/db/models/User';
 import Subscription from '@studyvault/db/models/Subscription';
@@ -35,45 +33,13 @@ const PLANS = {
   },
 };
 
-/**
- * Extract user ID from session or sv_token cookie securely
- */
-async function getUserIdFromRequest(request: NextRequest) {
-  // Try NextAuth session first
-  const session = await getServerSession(authOptions);
-  if (session?.user?.id) {
-    return { userId: session.user.id, error: null };
-  }
-
-  // Fallback to sv_token cookie
-  const rawToken = request.cookies.get('sv_token')?.value;
-  const secret = process.env.JWT_SECRET;
-  
-  if (rawToken && secret) {
-    try {
-      const { payload } = await jwtVerify(rawToken, new TextEncoder().encode(secret));
-      const tokenUser = payload as any;
-      if (tokenUser?.userId || tokenUser?.sub || tokenUser?.id) {
-        return { userId: tokenUser.userId || tokenUser.sub || tokenUser.id, error: null };
-      }
-    } catch {
-      // Token verification failed
-    }
-  }
-
-  return { userId: null, error: 'Unauthorized' };
-}
-
 export async function POST(request: NextRequest) {
   try {
-    // SECURE: Extract userId from session/token, NOT from client body
-    const { userId, error } = await getUserIdFromRequest(request);
+    // SECURE: Extract userId from session/token using unified auth
+    const user = await getAuthUser(request);
     
-    if (!userId || error) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    if (!user) {
+      return unauthorizedResponse();
     }
 
     await connectDB();
@@ -185,30 +151,27 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // SECURE: Extract userId from session/token, NOT from query params
-    const { userId, error } = await getUserIdFromRequest(request);
+    // SECURE: Extract userId from session/token using unified auth
+    const user = await getAuthUser(request);
     
-    if (!userId || error) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    if (!user) {
+      return unauthorizedResponse();
     }
 
     await connectDB();
 
-    const user = await User.findById(userId).populate('subscription');
-    if (!user) {
+    const userDoc = await User.findById(user.id).populate('subscription');
+    if (!userDoc) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
-    const currentPlan = user.subscription?.plan || 'free';
+    const currentPlan = userDoc.subscription?.plan || 'free';
     const isPremium = ['basic', 'premium', 'family'].includes(currentPlan);
-    const expiresAt = user.subscription?.expires_at || null;
-    const aiCreditsUsed = user.subscription?.ai_credits_used_today || 0;
+    const expiresAt = userDoc.subscription?.expires_at || null;
+    const aiCreditsUsed = userDoc.subscription?.ai_credits_used_today || 0;
     const planDetails = PLANS[currentPlan as keyof typeof PLANS] || {
       name: 'Free',
       price: 0,

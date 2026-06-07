@@ -1,8 +1,8 @@
-import { getUser } from '@studyvault/lib/auth/server';
+import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 
 export async function GET() {
   try {
-    const user = await getUser();
+    const user = await getAuthUser();
     if (!user) {
       return Response.json(
         { success: true, data: { user: null } },

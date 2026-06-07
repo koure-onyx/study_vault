@@ -5,7 +5,7 @@ import Topic from '@studyvault/db/models/Topic';
 import QuranVerse from '@studyvault/db/models/QuranVerse';
 import '@studyvault/db/models/Program';
 import '@studyvault/db/models/Chapter';
-import { getServerUser } from '@studyvault/lib/auth/server';
+import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
     }
 
     await connectDB();
-    const user = await getServerUser();
+    const user = await getAuthUser(req);
     const board = user?.board || user?.student_profile?.board || undefined;
     const grade = user?.grade || user?.student_profile?.grade || undefined;
     const isLoggedIn = Boolean(user);

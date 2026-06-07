@@ -42,21 +42,15 @@ export async function GET(
       .select(fields)
       .lean();
 
-    console.log(`\n=== 2. API FETCHED: TOPICS FOR CHAPTER ${chapterId} ===`);
-    console.log(JSON.stringify(topics, null, 2));
-    console.log('========================================================================\n');
-
     return NextResponse.json({
       success: true,
       data: topics.map((t: any) => ({
-        ...t,
         _id: t._id?.toString(),
         chapter_id: t.chapter_id?.toString(),
         book_id: t.book_id?.toString(),
       })),
     });
   } catch (error) {
-    console.error('Get chapter topics error:', error);
     return NextResponse.json(
       { 
         success: false, 

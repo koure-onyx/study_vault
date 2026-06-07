@@ -1,50 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@studyvault/lib/auth/options';
-import { jwtVerify } from 'jose';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import UserProgress from '@studyvault/db/models/UserProgress';
 import Topic from '@studyvault/db/models/Topic';
 
-/**
- * Extract user ID from session or sv_token cookie securely
- */
-async function getUserIdFromRequest(request: NextRequest) {
-  // Try NextAuth session first
-  const session = await getServerSession(authOptions);
-  if (session?.user?.id) {
-    return { userId: session.user.id, error: null };
-  }
-
-  // Fallback to sv_token cookie
-  const rawToken = request.cookies.get('sv_token')?.value;
-  const secret = process.env.JWT_SECRET;
-  
-  if (rawToken && secret) {
-    try {
-      const { payload } = await jwtVerify(rawToken, new TextEncoder().encode(secret));
-      const tokenUser = payload as any;
-      if (tokenUser?.userId || tokenUser?.sub || tokenUser?.id) {
-        return { userId: tokenUser.userId || tokenUser.sub || tokenUser.id, error: null };
-      }
-    } catch {
-      // Token verification failed
-    }
-  }
-
-  return { userId: null, error: 'Unauthorized' };
-}
-
 export async function POST(request: NextRequest) {
   try {
-    // SECURE: Extract userId from session/token, NOT from client body
-    const { userId, error } = await getUserIdFromRequest(request);
+    // SECURE: Extract userId from session/token using unified auth
+    const user = await getAuthUser(request);
     
-    if (!userId || error) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
+    if (!user) {
+      return unauthorizedResponse();
     }
 
     const body = await request.json();
@@ -70,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Find or create progress record
     let progress = await UserProgress.findOne({ 
-      user_id: userId, 
+      user_id: user.id, 
       topic_id: topicId 
     });
 
@@ -94,7 +60,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Create new progress record
       progress = await UserProgress.create({
-        user_id: userId,
+        user_id: user.id,
         topic_id: topicId,
         chapter_id: topic.chapter_id,
         book_id: topic.book_id,
