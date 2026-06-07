@@ -203,11 +203,13 @@ TopicSchema.index({ slug: 1, chapter_id: 1 }, { unique: true });
 TopicSchema.index({ chapter_id: 1, display_order: 1 });
 TopicSchema.index({ book_id: 1, is_live: 1 });
 TopicSchema.index({ workflow_status: 1 });
-TopicSchema.index({ title: 'text', keywords: 'text', raw_text: 'text' });
+TopicSchema.index({ title: 'text', clean_html: 'text' }); // Improved text index for search
 TopicSchema.index({ 'content_blocks.text': 'text', 'content_blocks.question': 'text', 'content_blocks.definition': 'text' });
 TopicSchema.index({ program_id: 1, is_live: 1 });
 TopicSchema.index({ 'exam_frequency.board_id': 1, 'exam_frequency.is_hot_topic': 1 });
 TopicSchema.index({ book_id: 1, version_status: 1 });
 TopicSchema.index({ content_hash: 1 });
+TopicSchema.index({ book_id: 1, chapter_id: 1 }); // Compound index for chapter topic lookups
+TopicSchema.index({ subject_slug: 1, is_live: 1 }); // Compound index for subject filtering
 
 export default mongoose.models.Topic || mongoose.model('Topic', TopicSchema);

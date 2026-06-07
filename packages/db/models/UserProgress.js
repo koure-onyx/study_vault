@@ -30,6 +30,7 @@ UserProgressSchema.index({ user_id: 1, topic_id: 1 }, { unique: true });
 UserProgressSchema.index({ user_id: 1, program_id: 1 });
 UserProgressSchema.index({ user_id: 1, mastery_status: 1 });
 UserProgressSchema.index({ user_id: 1, chapter_id: 1 });
+UserProgressSchema.index({ user_id: 1, book_id: 1 }); // Additional index for book-level progress
 
 export default mongoose.models.UserProgress ||
   mongoose.model('UserProgress', UserProgressSchema);

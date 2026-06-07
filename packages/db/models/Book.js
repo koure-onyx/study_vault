@@ -51,5 +51,7 @@ BookSchema.index({ program_id: 1, is_live: 1 });
 BookSchema.index({ is_current_edition: 1 });
 BookSchema.index({ title: 'text', subject: 'text' });
 BookSchema.index({ board: 1, grade: 1, is_live: 1 });
+BookSchema.index({ board_id: 1, program_id: 1 }); // Compound index for board+program queries
+BookSchema.index({ subject_slug: 1, is_live: 1 }); // Compound index for subject filtering
 
 export default mongoose.models.Book || mongoose.model('Book', BookSchema);

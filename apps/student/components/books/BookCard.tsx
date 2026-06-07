@@ -2,19 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import {
-  BookOpen,
-  Zap,
-  Globe2,
-  Moon,
-  Calculator,
-  Languages,
-  Microscope,
-  Atom,
-  Lock,
-  ArrowRight,
-} from "lucide-react";
+import { Lock, ArrowRight } from "lucide-react";
 import { bookUrl } from "@/lib/reader-urls";
+import { getSubjectConfigBySlug, DEFAULT_SUBJECT_CONFIG } from "@/lib/subject-icons";
 
 interface Book {
   _id: string;
@@ -40,46 +30,11 @@ interface BookCardProps {
   book: Book;
 }
 
-// Subject to icon and color mapping
-const SUBJECT_CONFIG: Record<
-  string,
-  { icon: React.ElementType; color: string; bgColor: string }
-> = {
-  Physics: { icon: Zap, color: "text-amber-500", bgColor: "bg-amber-500/10" },
-  English: {
-    icon: BookOpen,
-    color: "text-blue-500",
-    bgColor: "bg-blue-500/10",
-  },
-  "Pakistan Studies": {
-    icon: Globe2,
-    color: "text-emerald-500",
-    bgColor: "bg-emerald-500/10",
-  },
-  Quran: { icon: Moon, color: "text-emerald-400", bgColor: "bg-emerald-400/10" },
-  Mathematics: {
-    icon: Calculator,
-    color: "text-indigo-500",
-    bgColor: "bg-indigo-500/10",
-  },
-  Chemistry: { icon: Atom, color: "text-purple-500", bgColor: "bg-purple-500/10" },
-  Biology: {
-    icon: Microscope,
-    color: "text-green-500",
-    bgColor: "bg-green-500/10",
-  },
-  Urdu: { icon: Languages, color: "text-rose-500", bgColor: "bg-rose-500/10" },
-};
-
-const DEFAULT_SUBJECT_CONFIG = {
-  icon: BookOpen,
-  color: "text-slate-400",
-  bgColor: "bg-slate-500/10",
-};
-
 export function BookCard({ book }: BookCard) {
-  const config =
-    SUBJECT_CONFIG[book.subject] || DEFAULT_SUBJECT_CONFIG;
+  // Use centralized subject icon mapping - supports both subject name and slug
+  const config = book.subject_slug 
+    ? getSubjectConfigBySlug(book.subject_slug)
+    : DEFAULT_SUBJECT_CONFIG;
   const IconComponent = config.icon;
   const readerHref = bookUrl(book.subject_slug || book.slug || book._id, {
     boardSlug: book.board_slug,
