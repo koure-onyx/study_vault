@@ -50,3 +50,30 @@ export function unauthorizedResponse(): NextResponse<ApiResponse<never>> {
 }
 
 export type { ApiResponse };
+
+/**
+ * Normalize slug to consistent format: lowercase, hyphens, no special chars
+ * Use this everywhere slugs are generated or compared
+ */
+export function normalizeSlug(slug: string): string {
+  return slug
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')      // Remove special characters
+    .replace(/\s+/g, '-')              // Replace spaces with hyphens
+    .replace(/-+/g, '-')               // Collapse multiple hyphens
+    .trim();
+}
+
+/**
+ * Compare two slugs in a normalized way
+ */
+export function slugsMatch(slug1: string, slug2: string): boolean {
+  return normalizeSlug(slug1) === normalizeSlug(slug2);
+}
+
+/**
+ * Generate slug from text with consistent normalization
+ */
+export function generateSlug(text: string): string {
+  return normalizeSlug(text);
+}

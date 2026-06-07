@@ -1,43 +1,41 @@
 ```
-# Dependencies
-node_modules/
-
-.turbo/
-
-# Build outputs
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
 dist/
 build/
-.next/
-out/
+target/
 
-# Environment variables
+# Dependencies
+.venv/
+venv/
+node_modules/
+.mypy_cache/
+.pytest_cache/
+.gradle/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editor/IDE files
+# Editors
 .vscode/
 .idea/
-*.swp
-*.swo
-*.tmp
 
-# Logs
-*.log
-
-# Python artifacts (if any Python projects exist)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Coverage reports
+# Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Temporary files
-*.tmp
+# OS
 .DS_Store
 Thumbs.db
 ```

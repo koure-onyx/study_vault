@@ -5,9 +5,10 @@ import _Chapter from '@studyvault/db/models/Chapter';
 import _Book from '@studyvault/db/models/Book';
 import _Program from '@studyvault/db/models/Program';
 import '@studyvault/db/models/Board';
-import { getJwtPayload, getUser } from '@studyvault/lib/auth/server';
+import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 import { resolveUserContentProfile } from '@studyvault/lib/content/bookFilter';
 import { serializeForClient } from '@/lib/serialize-for-client';
+import { normalizeSlug } from '@studyvault/lib/utils/api-response';
 
 const Topic = _Topic as any;
 const Chapter = _Chapter as any;
@@ -40,29 +41,26 @@ export async function loadBookReaderData(
 ): Promise<BookReaderData> {
 
   await connectDB();
-  const user = await getUser();
-  const authPayload = await getJwtPayload();
-  const isLoggedIn = Boolean(user || authPayload);
+  const user = await getAuthUser();
+  const isLoggedIn = Boolean(user);
 
   let book: any = null;
   let program: any = null;
   
-  // Try to match subject slug exactly, or try variations (e.g. physics-10 -> physics)
-  const getSubjectMatcher = (slug: string) => {
-    const variations = [slug];
-    const gradeSuffixMatch = slug.match(/^(.+)-(\d+)$/);
-    if (gradeSuffixMatch) {
-      variations.push(gradeSuffixMatch[1]);
-    }
-    return {
-      $or: [
-        { subject_slug: { $in: variations } },
-        { slug: { $in: variations } }
-      ],
-    };
+  // Normalize subject slug for consistent matching
+  const normalizedSubjectSlug = normalizeSlug(subjectSlug);
+  
+  // Single clean query with normalized slug - no fallbacks needed
+  const subjectMatcher = {
+    $or: [
+      { subject_slug: normalizedSubjectSlug },
+      { slug: normalizedSubjectSlug },
+      // Handle grade-suffixed subjects (e.g., physics-10 -> physics)
+      ...(normalizedSubjectSlug.includes("-")
+        ? [{ subject_slug: normalizedSubjectSlug.split("-")[0] }]
+        : []),
+    ],
   };
-
-  const subjectMatcher = getSubjectMatcher(subjectSlug);
 
   if (opts?.programSlug && opts?.boardSlug) {
     program = await Program.findOne({ slug: opts.programSlug }).lean();
