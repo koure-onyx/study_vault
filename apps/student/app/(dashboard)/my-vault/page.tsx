@@ -14,7 +14,7 @@ import { getUser } from '@studyvault/lib/auth/server';
 import { buildBookFilter, resolveUserContentProfile } from '@studyvault/lib/content/bookFilter';
 import { bookUrl } from '@/lib/reader-urls';
 
-const Book = _Book as any;
+const Book = _Book;
 
 export const dynamic = 'force-dynamic';
 

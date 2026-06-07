@@ -1,10 +1,11 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@studyvault/db/connect';
-import Book from '@studyvault/db/models/Book';
-import Topic from '@studyvault/db/models/Topic';
-import QuranVerse from '@studyvault/db/models/QuranVerse';
-import '@studyvault/db/models/Program';
-import '@studyvault/db/models/Chapter';
+import BookModel from '@studyvault/db/models/Book';
+import TopicModel from '@studyvault/db/models/Topic';
+import QuranVerseModel from '@studyvault/db/models/QuranVerse';
+import ProgramModel from '@studyvault/db/models/Program';
+import ChapterModel from '@studyvault/db/models/Chapter';
+import type { IBook, ITopic } from '@studyvault/db/models';
 import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 
 function escapeRegex(value: string) {
@@ -92,7 +93,7 @@ export async function GET(req: NextRequest) {
 
     if (gradeNum && gradeNum >= 1 && gradeNum <= 12) {
       const gradeScope = scopedBookFilter(isLoggedIn ? board : undefined, isLoggedIn ? grade : undefined);
-      let gradeBooks = await (Book as any)
+      let gradeBooks = await BookModel
         .find({ $and: [{ is_live: true }, gradeScope, gradeNumberFilter(gradeNum)] })
         .limit(10)
         .populate('program_id', 'name slug')
@@ -101,7 +102,7 @@ export async function GET(req: NextRequest) {
         .lean();
 
       if (gradeBooks.length === 0) {
-        gradeBooks = await (Book as any)
+        gradeBooks = await BookModel
           .find({
             $and: [
               gradeScope,
@@ -144,7 +145,7 @@ export async function GET(req: NextRequest) {
       textBookFilter.$and = [scoped];
     }
 
-    const textBooks = await (Book as any)
+    const textBooks = await BookModel
       .find(textBookFilter)
       .limit(10)
       .populate('program_id', 'name slug')
@@ -154,7 +155,7 @@ export async function GET(req: NextRequest) {
 
     const seenBookIds = new Set(books.map((b: any) => b._id.toString()));
     for (const book of textBooks) {
-      const id = (book as any)._id.toString();
+      const id = book._id.toString();
       if (!seenBookIds.has(id) && books.length < 10) {
         seenBookIds.add(id);
         books.push(book);
@@ -173,11 +174,11 @@ export async function GET(req: NextRequest) {
     };
 
     if (isLoggedIn && (board || grade)) {
-      const matchingBooks = await (Book as any).find(scopedBookFilter(board, grade)).select('_id').lean();
+      const matchingBooks = await BookModel.find(scopedBookFilter(board, grade)).select('_id').lean();
       topicFilter.book_id = { $in: matchingBooks.map((book: any) => book._id) };
     }
 
-    const textTopics = await (Topic as any)
+    const textTopics = await TopicModel
       .find(topicFilter)
       .limit(15)
       .populate({
@@ -195,7 +196,7 @@ export async function GET(req: NextRequest) {
 
     const seenTopicIds = new Set(topics.map((t: any) => t._id.toString()));
     for (const topic of textTopics) {
-      const id = (topic as any)._id.toString();
+      const id = topic._id.toString();
       if (!seenTopicIds.has(id) && topics.length < 15) {
         seenTopicIds.add(id);
         topics.push(topic);
@@ -214,7 +215,7 @@ export async function GET(req: NextRequest) {
     };
 
     if (/quran/i.test(q)) {
-      const quranTopics = await (Topic as any)
+      const quranTopics = await TopicModel
         .find(quranTopicFilter)
         .limit(5)
         .populate({
@@ -233,21 +234,21 @@ export async function GET(req: NextRequest) {
       for (const topic of quranTopics) {
         if (quran.length >= 5) break;
         quran.push({
-          _id: (topic as any)._id,
-          title: (topic as any).title,
-          subtitle: (topic as any).quran_reference?.surah_name_english
-            || `Surah ${(topic as any).quran_reference?.surah || ''}`,
-          slug: (topic as any).slug,
-          program_id: (topic as any).program_id,
-          book_id: (topic as any).book_id,
-          chapter_id: (topic as any).chapter_id,
+          _id: topic._id,
+          title: topic.title,
+          subtitle: topic.quran_reference?.surah_name_english
+            || `Surah ${topic.quran_reference?.surah || ''}`,
+          slug: topic.slug,
+          program_id: topic.program_id,
+          book_id: topic.book_id,
+          chapter_id: topic.chapter_id,
           type: 'topic',
         });
       }
     }
 
     if (gradeNum && gradeNum >= 1 && gradeNum <= 114) {
-      const verses = await (QuranVerse as any)
+      const verses = await QuranVerseModel
         .find({ surah: gradeNum })
         .limit(5)
         .select('surah ayah text_uthmani')

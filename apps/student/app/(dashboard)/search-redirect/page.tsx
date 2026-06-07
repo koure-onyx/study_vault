@@ -4,7 +4,7 @@ import Topic from '@studyvault/db/models/Topic';
 import '@studyvault/db/models/Book';
 import { topicUrl } from '@/lib/reader-urls';
 
-const TopicModel = Topic as any;
+const TopicModel = TopicModel;
 
 export default async function SearchRedirect({ searchParams }: { searchParams: { topicId: string } }) {
   if (!searchParams.topicId) redirect('/dashboard');
@@ -26,8 +26,8 @@ export default async function SearchRedirect({ searchParams }: { searchParams: {
 
   const subjectSlug = topic.book_id?.subject_slug || 'subject';
   const chapterSlug = topic.chapter_id?.slug || `chapter-${topic.chapter_id?.chapter_number || 1}`;
-  const programSlug = (topic.book_id as any)?.program_id?.slug;
-  const boardSlug = (topic.book_id as any)?.board_id?.short_code || (topic.book_id as any)?.board_id?.slug;
+  const programSlug = topic.book_id?.program_id?.slug;
+  const boardSlug = topic.book_id?.board_id?.short_code || topic.book_id?.board_id?.slug;
 
   const opts = boardSlug || programSlug ? { boardSlug, programSlug } : undefined;
   redirect(topicUrl(subjectSlug, chapterSlug, topic.slug || topic._id.toString(), opts));

@@ -10,8 +10,8 @@ import _UserProgress from '@studyvault/db/models/UserProgress';
 import _Book from '@studyvault/db/models/Book';
 import { getServerUser } from '@studyvault/lib/auth/server';
 
-const UserProgress = _UserProgress as any;
-const Book = _Book as any;
+const UserProgress = _UserProgress;
+const Book = _Book;
 
 export const dynamic = 'force-dynamic';
 

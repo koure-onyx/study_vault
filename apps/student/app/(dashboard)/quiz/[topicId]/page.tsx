@@ -5,8 +5,8 @@ import QuizEngine from '@/components/QuizEngine';
 import { getServerUser } from '@studyvault/lib/auth/server';
 import { notFound } from 'next/navigation';
 
-const Question = _Question as any;
-const Topic = _Topic as any;
+const Question = _Question;
+const Topic = _Topic;
 
 export default async function QuizPage({ params }: { params: Promise<{ topicId: string }> }) {
   const resolvedParams = await params;

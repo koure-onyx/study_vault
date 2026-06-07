@@ -1,19 +1,22 @@
 import { notFound } from 'next/navigation';
 import connectDB from '@studyvault/db/connect';
-import _Topic from '@studyvault/db/models/Topic';
-import _Chapter from '@studyvault/db/models/Chapter';
-import _Book from '@studyvault/db/models/Book';
-import _Program from '@studyvault/db/models/Program';
-import '@studyvault/db/models/Board';
+import TopicModel from '@studyvault/db/models/Topic';
+import ChapterModel from '@studyvault/db/models/Chapter';
+import BookModel from '@studyvault/db/models/Book';
+import ProgramModel from '@studyvault/db/models/Program';
+import BoardModel from '@studyvault/db/models/Board';
+import type { ITopic, IChapter, IBook, IProgram, IBoard } from '@studyvault/db/models';
 import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 import { resolveUserContentProfile } from '@studyvault/lib/content/bookFilter';
 import { serializeForClient } from '@/lib/serialize-for-client';
 import { normalizeSlug } from '@studyvault/lib/utils/api-response';
 
-const Topic = _Topic as any;
-const Chapter = _Chapter as any;
-const Book = _Book as any;
-const Program = _Program as any;
+// Use typed model references instead of 'as any'
+const Topic = TopicModel;
+const Chapter = ChapterModel;
+const Book = BookModel;
+const Program = ProgramModel;
+const Board = BoardModel;
 
 export function idString(value: unknown): string {
   if (!value) return '';
@@ -58,7 +61,6 @@ export async function loadBookReaderData(
     program = await Program.findOne({ slug: opts.programSlug }).lean();
     if (!program) notFound();
 
-    const Board = (await import('@studyvault/db/models/Board')).default as any;
     const normalizedBoardSlug = opts.boardSlug.toLowerCase().replace(/-/g, ' ');
     const board = await Board.findOne({
       $or: [

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@studyvault/db/connect';
-import Topic from '@studyvault/db/models/Topic';
-
-const TopicModel = Topic as any;
+import TopicModel from '@studyvault/db/models/Topic';
+import ChapterModel from '@studyvault/db/models/Chapter';
+import BookModel from '@studyvault/db/models/Book';
+import type { IChapter, IBook } from '@studyvault/db/models';
 
 export async function GET(
   request: NextRequest,
@@ -16,11 +17,9 @@ export async function GET(
 
     let showAll = isPreview;
     try {
-      const ChapterModel = (await import('@studyvault/db/models/Chapter')).default as any;
-      const BookModel = (await import('@studyvault/db/models/Book')).default as any;
-      const chapterDoc = await ChapterModel.findById(chapterId).lean();
+      const chapterDoc = await ChapterModel.findById(chapterId).lean<IChapter | null>();
       if (chapterDoc) {
-        const bookDoc = await BookModel.findById(chapterDoc.book_id).lean();
+        const bookDoc = await BookModel.findById(chapterDoc.book_id).lean<IBook | null>();
         if (bookDoc && !bookDoc.is_live) {
           showAll = true;
         }

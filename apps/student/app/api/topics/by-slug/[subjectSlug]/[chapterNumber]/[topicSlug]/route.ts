@@ -1,13 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@studyvault/db/connect';
-import Topic from '@studyvault/db/models/Topic';
-import Chapter from '@studyvault/db/models/Chapter';
-import Book from '@studyvault/db/models/Book';
-import '@studyvault/db/models/Board';
-
-const TopicModel = Topic as any;
-const ChapterModel = Chapter as any;
-const BookModel = Book as any;
+import TopicModel from '@studyvault/db/models/Topic';
+import ChapterModel from '@studyvault/db/models/Chapter';
+import BookModel from '@studyvault/db/models/Book';
+import BoardModel from '@studyvault/db/models/Board';
 
 export async function GET(
   request: NextRequest,

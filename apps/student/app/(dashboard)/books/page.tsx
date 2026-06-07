@@ -40,7 +40,7 @@ async function fetchBooksData() {
   const profile = user ? await resolveUserContentProfile(user) : null;
   const filter = profile ? buildBookFilter(profile) : { is_current_edition: { $ne: false } };
 
-  const books = await (Book as any)
+  const books = await BookModel
     .find(filter)
     .sort({ title: 1 })
     .populate('program_id', 'name slug')
