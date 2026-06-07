@@ -198,172 +198,44 @@ function QuizActivitySkeleton() {
   );
 }
 
-// Data fetching functions (server-side)
-async function getDashboardData(): Promise<DashboardData> {
-  // Mock data - replace with actual API calls to your backend
-  // In production, fetch from: /api/progress/dashboard-summary, /api/progress/recent-chapters, etc.
-  
-  return {
-    stats: {
-      examReadiness: 67,
-      topicsMastered: 14,
-      xpThisWeek: 340,
-      currentLevel: 2,
-      xpToNextLevel: 500,
-      streakDays: 3,
-      topicsStudied: 7,
-      studiedDays: [true, false, true, true, false, true, true],
-    },
-    recentChapters: [
-      {
-        _id: "ch1",
-        bookTitle: "Physics Grade 10",
-        chapterTitle: "Chapter 1: Simple Harmonic Motion",
-        progress: 45,
-        href: chapterUrl("physics-10", "chapter-1", {
-          boardSlug: "punjab-board",
-          programSlug: "grade-10",
-        }),
-      },
-      {
-        _id: "ch2",
-        bookTitle: "Chemistry Grade 10",
-        chapterTitle: "Chapter 3: Chemical Bonding",
-        progress: 20,
-        href: chapterUrl("chemistry-10", "chapter-3", {
-          boardSlug: "punjab-board",
-          programSlug: "grade-10",
-        }),
-      },
-    ],
-    books: [
-      {
-        _id: "b1",
-        title: "Physics Grade 10",
-        subject: "Physics",
-        subject_slug: "physics-10",
-        program_name: "Grade 10",
-        board: "Punjab Board",
-        board_slug: "punjab-board",
-        program_slug: "grade-10",
-        total_topics: 92,
-        topicsRead: 14,
-      },
-      {
-        _id: "b2",
-        title: "Chemistry Grade 10",
-        subject: "Chemistry",
-        subject_slug: "chemistry-10",
-        program_name: "Grade 10",
-        board: "Punjab Board",
-        board_slug: "punjab-board",
-        program_slug: "grade-10",
-        total_topics: 78,
-        topicsRead: 8,
-      },
-      {
-        _id: "b3",
-        title: "Mathematics Grade 10",
-        subject: "Mathematics",
-        subject_slug: "mathematics-10",
-        program_name: "Grade 10",
-        board: "Punjab Board",
-        board_slug: "punjab-board",
-        program_slug: "grade-10",
-        total_topics: 120,
-        topicsRead: 22,
-      },
-      {
-        _id: "b4",
-        title: "Biology Grade 10",
-        subject: "Biology",
-        subject_slug: "biology-10",
-        program_name: "Grade 10",
-        board: "Punjab Board",
-        board_slug: "punjab-board",
-        program_slug: "grade-10",
-        total_topics: 85,
-        topicsRead: 5,
-      },
-    ],
-    hotTopics: [
-      {
-        _id: "t1",
-        title: "Vernier Callipers",
-        exam_frequency_count: 4,
-        slug: "vernier-callipers",
-      },
-      {
-        _id: "t2",
-        title: "Simple Harmonic Motion",
-        exam_frequency_count: 5,
-        slug: "simple-harmonic-motion",
-      },
-      {
-        _id: "t3",
-        title: "Chemical Bonding",
-        exam_frequency_count: 3,
-        slug: "chemical-bonding",
-      },
-      {
-        _id: "t4",
-        title: "Quadratic Equations",
-        exam_frequency_count: 4,
-        slug: "quadratic-equations",
-      },
-    ],
-    vaultItems: [
-      {
-        _id: "v1",
-        topicTitle: "Vernier Callipers - Key Formulas",
-        itemType: "flashcard",
-        createdAt: "2025-01-15T10:30:00Z",
-      },
-      {
-        _id: "v2",
-        topicTitle: "SHM Graph Explanation",
-        itemType: "bookmark",
-        createdAt: "2025-01-14T14:20:00Z",
-      },
-      {
-        _id: "v3",
-        topicTitle: "Ionic Bond Notes",
-        itemType: "note",
-        createdAt: "2025-01-13T09:15:00Z",
-      },
-    ],
-    recentQuizzes: [
-      {
-        _id: "q1",
-        topicTitle: "Vernier Callipers",
-        score: 85,
-        status: "mastered",
-        date: "2 days ago",
-      },
-      {
-        _id: "q2",
-        topicTitle: "Kinematics",
-        score: 60,
-        status: "retry",
-        date: "5 days ago",
-      },
-      {
-        _id: "q3",
-        topicTitle: "Chemical Bonding",
-        score: 72,
-        status: "in-progress",
-        date: "1 week ago",
-      },
-    ],
-    firstName: "Ahmed",
-  };
-}
-
 function getGreeting(firstName: string): string {
   const hour = new Date().getHours();
   if (hour < 12) return `Good morning, ${firstName}.`;
   if (hour < 17) return `Good afternoon, ${firstName}.`;
   return `Good evening, ${firstName}.`;
+}
+
+
+// Data fetching functions (server-side)
+async function getDashboardData(): Promise<DashboardData> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dashboard`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    // Return empty state on error
+    return {
+      books: [],
+      recentChapters: [],
+      stats: {
+        examReadiness: 0,
+        topicsMastered: 0,
+        xpThisWeek: 0,
+        currentLevel: 1,
+        xpToNextLevel: 100,
+        streakDays: 0,
+        topicsStudied: 0,
+        studiedDays: [false, false, false, false, false, false, false],
+      },
+      hotTopics: [],
+      vaultItems: [],
+      recentQuizzes: [],
+      firstName: 'Student',
+    };
+  }
+
+  const json = await res.json();
+  return json.data;
 }
 
 // Main dashboard content component
