@@ -1,51 +1,40 @@
 import { NextRequest } from 'next/server';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
-import Board from '@studyvault/db/models/Board';
-import Program from '@studyvault/db/models/Program';
 import User from '@studyvault/db/models/User';
-import { requireAuth } from '@studyvault/lib/auth/middleware';
-
-export async function GET(req: NextRequest) {
-  try {
-    // We don't necessarily need auth to see boards/programs during onboarding
-    await connectDB();
-    
-    const [boards, programs] = await Promise.all([
-      Board.find({ is_active: true }).sort({ name: 1 }).lean(),
-      Program.find({ is_active: true }).sort({ display_order: 1 }).lean()
-    ]);
-
-    return Response.json({
-      success: true,
-      data: { boards, programs }
-    });
-  } catch (err: any) {
-    return Response.json({ success: false, error: err.message }, { status: 500 });
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth(req);
-    const { boardId, programId, medium } = await req.json();
+    const user = await getAuthUser(req);
+    if (!user) return unauthorizedResponse();
 
-    if (!boardId || !programId || !medium) {
-      return Response.json({ success: false, error: 'All fields are required' }, { status: 400 });
+    const { board, grade, className } = await req.json();
+
+    if (!board || !grade) {
+      return Response.json({ success: false, error: 'Board and grade are required' }, { status: 400 });
     }
 
     await connectDB();
 
-    await User.findByIdAndUpdate(user._id, {
-      'student_profile.board_id': boardId,
-      'student_profile.active_program_id': programId,
-      'student_profile.program_ids': [programId],
-      'student_profile.medium': medium,
-      'student_profile.onboarding_completed': true
-    });
+    const updatedUser = await User.findByIdAndUpdate(
+      user.id,
+      {
+        $set: {
+          'student_profile.board': board,
+          'student_profile.grade': grade,
+          'student_profile.class': className,
+          'student_profile.onboarding_completed': true,
+        },
+      },
+      { new: true }
+    ).select('-password_hash -otp -password_reset_token');
 
-    return Response.json({ success: true, message: 'Onboarding completed successfully' });
-  } catch (err: any) {
+    return Response.json({
+      success: true,
+      data: { user: updatedUser },
+    });
+  } catch (err) {
     if (err instanceof Response) return err;
-    return Response.json({ success: false, error: err.message }, { status: 500 });
+    return Response.json({ success: false, error: 'Server error' }, { status: 500 });
   }
 }

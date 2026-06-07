@@ -1,12 +1,14 @@
 import { NextRequest } from 'next/server';
-import { requireAuth } from '@studyvault/lib/auth/middleware';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import UserProgress from '@studyvault/db/models/UserProgress';
 import Topic from '@studyvault/db/models/Topic';
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireAuth(req);
+    const user = await getAuthUser(req);
+    if (!user) return unauthorizedResponse();
+
     const { topicId, score } = await req.json();
 
     if (!topicId || score === undefined)
@@ -18,7 +20,7 @@ export async function POST(req: NextRequest) {
     const topic = await Topic.findById(topicId).select('chapter_id book_id program_id').lean();
     if (!topic) return Response.json({ success: false, error: 'Topic not found' }, { status: 404 });
 
-    const existing = await UserProgress.findOne({ user_id: user._id, topic_id: topicId });
+    const existing = await UserProgress.findOne({ user_id: user.id, topic_id: topicId });
     const wasAlreadyMastered = existing?.mastery_status === 'mastered';
     const isRead = existing?.is_read || false;
     const newHighest = Math.max(existing?.highest_quiz_score || 0, score);
@@ -30,7 +32,7 @@ export async function POST(req: NextRequest) {
     const xpGain = (!wasAlreadyMastered && mastery_status === 'mastered') ? 50 : 5;
 
     const progress = await UserProgress.findOneAndUpdate(
-      { user_id: user._id, topic_id: topicId },
+      { user_id: user.id, topic_id: topicId },
       {
         $set: {
           last_quiz_score: score,

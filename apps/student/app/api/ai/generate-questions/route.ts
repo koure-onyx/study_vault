@@ -4,7 +4,7 @@ import Question from '@studyvault/db/models/Question';
 import Topic from '@studyvault/db/models/Topic';
 import { generateCompletion } from '@studyvault/lib/ai/provider';
 import { PROMPTS } from '@studyvault/lib/ai/prompts';
-import { verifyToken } from '@studyvault/lib/auth/jwt';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import User from '@studyvault/db/models/User';
 
 const success = (data: any, status = 200) =>
@@ -16,37 +16,32 @@ const error = (message: string, status = 400) =>
 // POST /api/ai/generate-questions
 export async function POST(req: NextRequest) {
   try {
-    await connectDB();
-    
-    const token = req.cookies.get('token')?.value;
-    if (!token) {
-      return error('Authentication required', 401);
-    }
+    const user = await getAuthUser(req);
+    if (!user) return unauthorizedResponse();
 
-    const decoded = verifyToken(token);
-    const userId = decoded.userId;
+    await connectDB();
 
     // Check user's AI credits
-    const user = await User.findById(userId);
-    if (!user) {
+    const dbUser = await User.findById(user.id);
+    if (!dbUser) {
       return error('User not found', 404);
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const resetAt = user.subscription.ai_credits_reset_at;
+    const resetAt = dbUser.subscription?.ai_credits_reset_at;
     if (!resetAt || resetAt < today) {
       // Reset credits for new day
-      user.subscription.ai_credits_used_today = 0;
-      user.subscription.ai_credits_reset_at = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-      await user.save();
+      dbUser.subscription.ai_credits_used_today = 0;
+      dbUser.subscription.ai_credits_reset_at = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      await dbUser.save();
     }
 
-    const dailyLimit = user.subscription.plan === 'premium' ? 999 : 5;
-    if (user.subscription.ai_credits_used_today >= dailyLimit) {
+    const dailyLimit = dbUser.subscription?.plan === 'premium' ? 999 : 5;
+    if ((dbUser.subscription?.ai_credits_used_today || 0) >= dailyLimit) {
       return error(
-        `Daily AI limit reached. ${user.subscription.plan === 'free' ? 'Upgrade to premium for unlimited questions.' : 'Try again tomorrow.'}`,
+        `Daily AI limit reached. ${dbUser.subscription?.plan === 'free' ? 'Upgrade to premium for unlimited questions.' : 'Try again tomorrow.'}`,
         429
       );
     }
@@ -139,7 +134,7 @@ export async function POST(req: NextRequest) {
         source: 'ai_generated',
         difficulty: 'medium',
         is_verified: false, // Needs admin review
-        created_by: userId,
+        created_by: user.id,
       });
 
       savedQuestions.push({
@@ -154,8 +149,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Update user's AI credit usage
-    user.subscription.ai_credits_used_today += 1;
-    await user.save();
+    dbUser.subscription.ai_credits_used_today += 1;
+    await dbUser.save();
 
     // Combine existing and newly generated questions
     const allQuestions = [
@@ -175,8 +170,8 @@ export async function POST(req: NextRequest) {
       questions: allQuestions,
       generated: true,
       newCount: savedQuestions.length,
-      creditsUsed: user.subscription.ai_credits_used_today,
-      creditsRemaining: dailyLimit - user.subscription.ai_credits_used_today,
+      creditsUsed: dbUser.subscription.ai_credits_used_today,
+      creditsRemaining: dailyLimit - dbUser.subscription.ai_credits_used_today,
     });
   } catch (err: any) {
     console.error('Generate questions error:', err);

@@ -1,29 +1,33 @@
 import { NextRequest } from 'next/server';
-import { requireAuth } from '@studyvault/lib/auth/middleware';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import UserProgress from '@studyvault/db/models/UserProgress';
-import Topic from '@studyvault/db/models/Topic';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ programId: string }> }) {
   try {
+    const user = await getAuthUser(req);
+    if (!user) return unauthorizedResponse();
+
     const { programId } = await params;
-    const user = await requireAuth(req);
     await connectDB();
 
-    const totalTopics = await Topic.countDocuments({ program_id: programId, is_live: true });
-    const userProgress = await UserProgress.find({
-      user_id: user._id,
-      program_id: params.programId,
+    const progressRecords = await UserProgress.find({
+      user_id: user.id,
+      program_id: programId,
     }).lean();
 
-    const mastered = userProgress.filter(p => p.mastery_status === 'mastered').length;
-    const inProgress = userProgress.filter(p => p.mastery_status === 'in_progress').length;
-    const totalXP = userProgress.reduce((sum, p) => sum + (p.xp_earned || 0), 0);
-    const overallPercent = totalTopics > 0 ? Math.round((mastered / totalTopics) * 100) : 0;
+    const mastered = progressRecords.filter(p => p.mastery_status === 'mastered').length;
+    const inProgress = progressRecords.filter(p => p.mastery_status === 'in_progress').length;
+    const totalTopics = progressRecords.length;
 
     return Response.json({
       success: true,
-      data: { totalTopics, mastered, inProgress, totalXP, overallPercent },
+      data: { 
+        mastered, 
+        inProgress, 
+        totalTopics,
+        progress: progressRecords 
+      },
     });
   } catch (err) {
     if (err instanceof Response) return err;

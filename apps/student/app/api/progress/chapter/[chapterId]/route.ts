@@ -1,20 +1,22 @@
 import { NextRequest } from 'next/server';
-import { requireAuth } from '@studyvault/lib/auth/middleware';
+import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import UserProgress from '@studyvault/db/models/UserProgress';
 import Chapter from '@studyvault/db/models/Chapter';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ chapterId: string }> }) {
   try {
+    const user = await getAuthUser(req);
+    if (!user) return unauthorizedResponse();
+
     const { chapterId } = await params;
-    const user = await requireAuth(req);
     await connectDB();
 
     const chapter = await Chapter.findById(chapterId).select('topic_ids total_topics title').lean();
     if (!chapter) return Response.json({ success: false, error: 'Chapter not found' }, { status: 404 });
 
     const progressRecords = await UserProgress.find({
-      user_id: user._id,
+      user_id: user.id,
       topic_id: { $in: chapter.topic_ids },
     }).lean();
 
