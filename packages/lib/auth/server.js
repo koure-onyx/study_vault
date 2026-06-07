@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
-import { verifyJWTToken, getUnifiedUser } from './unified-auth.js';
-import connectDB from '@studyvault/db/connect.js';
+import { verifyJWTToken, getUnifiedUser } from './unified-auth.ts';
+import connectDB from '@studyvault/db/connect';
 import User from '@studyvault/db/models/User.js';
 import { getToken } from 'next-auth/jwt';
 

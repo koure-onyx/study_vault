@@ -1,79 +1,54 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Standardized API response helper for StudyVault Onyx
- * All API routes should use this format for consistency
+ * Standardized API Response Helpers for StudyVault Onyx
+ * Format: { success: boolean, data?: any, error?: string }
  */
 
-interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-  error?: never;
-}
-
-interface ApiErrorResponse {
-  success: false;
-  data?: never;
-  error: string;
-}
-
-type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
-
-/**
- * Create a standardized success response
- */
-export function apiSuccess<T>(data: T, status = 200): NextResponse<ApiResponse<T>> {
-  return NextResponse.json(
-    { success: true, data },
-    { status }
-  );
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
 /**
- * Create a standardized error response
+ * Success response helper
  */
-export function apiError(message: string, status = 400): NextResponse<ApiResponse<never>> {
-  return NextResponse.json(
-    { success: false, error: message },
-    { status }
-  );
+export function successResponse<T>(data: T, message?: string) {
+  return NextResponse.json<ApiResponse<T>>({
+    success: true,
+    data,
+    ...(message && { message }),
+  });
 }
 
 /**
- * Create a 401 unauthorized response (matches getAuthUser pattern)
+ * Error response helper
  */
-export function unauthorizedResponse(): NextResponse<ApiResponse<never>> {
-  return NextResponse.json(
-    { success: false, error: 'Authentication required' },
-    { status: 401 }
-  );
+export function errorResponse(message: string, status: number = 400) {
+  return NextResponse.json<ApiResponse>({
+    success: false,
+    error: message,
+  }, { status });
 }
 
-export type { ApiResponse };
+/**
+ * Unauthorized response helper (401)
+ */
+export function unauthorizedResponse(message: string = 'Unauthorized') {
+  return errorResponse(message, 401);
+}
 
 /**
- * Normalize slug to consistent format: lowercase, hyphens, no special chars
- * Use this everywhere slugs are generated or compared
+ * Normalize slug for consistent matching
+ * Handles undefined/null safely
  */
-export function normalizeSlug(slug: string): string {
+export function normalizeSlug(slug: string | undefined | null): string {
+  if (!slug) return '';
   return slug
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')      // Remove special characters
     .replace(/\s+/g, '-')              // Replace spaces with hyphens
     .replace(/-+/g, '-')               // Collapse multiple hyphens
     .trim();
-}
-
-/**
- * Compare two slugs in a normalized way
- */
-export function slugsMatch(slug1: string, slug2: string): boolean {
-  return normalizeSlug(slug1) === normalizeSlug(slug2);
-}
-
-/**
- * Generate slug from text with consistent normalization
- */
-export function generateSlug(text: string): string {
-  return normalizeSlug(text);
 }

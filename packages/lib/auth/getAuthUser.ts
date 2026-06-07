@@ -4,7 +4,8 @@ import { NextRequest } from 'next/server'
 import connectDB from '@studyvault/db/connect'
 import User from '@studyvault/db/models/User'
 import jwt from 'jsonwebtoken'
-import { createAuthOptions } from './options'
+import { authOptions } from './options';
+import { createAuthOptions } from './authOptions'
 
 export interface AuthUser {
   id: string
@@ -72,8 +73,9 @@ export async function getAuthUser(req?: NextRequest): Promise<AuthUser | null> {
     }
 
     // Try 3: NextAuth session (primary method for browser sessions)
-    const session = await getServerSession(createAuthOptions())
+    const session = await getServerSession(authOptions)
 
+    
     if (session?.user) {
       const sessionUser = session.user as any
 

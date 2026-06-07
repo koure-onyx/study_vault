@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import mongoose from 'mongoose';
 import { MongoClient, ObjectId } from 'mongodb';
-import connectDB from '../packages/db/connect.js';
-import Topic from '../packages/db/models/Topic.js';
+import connectDB from '../packages/db/connect';
+import Topic from '../packages/db/models/Topic';
 
 // Simple logger
 const log = [];

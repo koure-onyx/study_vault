@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { getAuthUser, unauthorizedResponse } from '@studyvault/lib/auth/getAuthUser';
 import connectDB from '@studyvault/db/connect';
 import Question from '@studyvault/db/models/Question';
-import Quiz from '@studyvault/db/models/Quiz';
+import Quiz from '@studyvault/db/models/Quiz.js';
 
 export async function POST(req: NextRequest) {
   try {

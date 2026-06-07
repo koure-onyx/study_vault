@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const user = await User.findById(userId);
-    if (!user) {
+    const userProfile = await User.findById(userId);
+    if (!userProfile) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }

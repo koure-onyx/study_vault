@@ -1,5 +1,5 @@
-import Board from '@studyvault/db/models/Board.js';
-import Program from '@studyvault/db/models/Program.js';
+import Board from '@studyvault/db/models/Board';
+import Program from '@studyvault/db/models/Program';
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

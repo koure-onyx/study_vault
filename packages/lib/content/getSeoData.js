@@ -1,9 +1,9 @@
-import connectDB from '@studyvault/db/connect.js';
-import Book from '@studyvault/db/models/Book.js';
-import Chapter from '@studyvault/db/models/Chapter.js';
-import Topic from '@studyvault/db/models/Topic.js';
-import Program from '@studyvault/db/models/Program.js';
-import Board from '@studyvault/db/models/Board.js';
+import connectDB from '@studyvault/db/connect';
+import Book from '@studyvault/db/models/Book';
+import Chapter from '@studyvault/db/models/Chapter';
+import Topic from '@studyvault/db/models/Topic';
+import Program from '@studyvault/db/models/Program';
+import Board from '@studyvault/db/models/Board';
 
 function pickSeo(entity) {
   if (!entity) return { title: '', description: '', keywords: [], ogImageUrl: '' };

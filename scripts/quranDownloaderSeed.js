@@ -5,8 +5,8 @@ import fetch from 'node-fetch';
 // Models - using relative paths since we are in /scripts
 // and models are in /packages/db/models
 // We use the full path to the .js file because of ESM
-import QuranVerse from '../packages/db/models/QuranVerse.js';
-import QuranWord from '../packages/db/models/QuranWord.js';
+import QuranVerse from '../packages/db/models/QuranVerse';
+import QuranWord from '../packages/db/models/QuranWord';
 
 dotenv.config({ path: new URL('../.env.local', import.meta.url) });
 

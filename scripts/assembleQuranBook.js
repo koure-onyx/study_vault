@@ -1,11 +1,11 @@
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import Program from '../packages/db/models/Program.js';
-import Board from '../packages/db/models/Board.js';
-import Book from '../packages/db/models/Book.js';
-import Chapter from '../packages/db/models/Chapter.js';
-import Topic from '../packages/db/models/Topic.js';
-import QuranVerse from '../packages/db/models/QuranVerse.js';
+import Program from '../packages/db/models/Program';
+import Board from '../packages/db/models/Board';
+import Book from '../packages/db/models/Book';
+import Chapter from '../packages/db/models/Chapter';
+import Topic from '../packages/db/models/Topic';
+import QuranVerse from '../packages/db/models/QuranVerse';
 
 dotenv.config({ path: new URL('../.env.local', import.meta.url) });
 
