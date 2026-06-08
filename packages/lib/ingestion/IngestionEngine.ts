@@ -184,6 +184,7 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
       log.push(`Created chapter: ${chapterDoc.title}`);
     } else {
       chapterDoc.title = chapter.title;
+      chapterDoc.chapter_number = chapter.number;
       chapterDoc.program_id = program._id;
       chapterDoc.board_id = board._id;
       chapterDoc.description = chapter.description || chapterDoc.description;
