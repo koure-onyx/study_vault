@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { connectDB } from '@studyvault/db';
+import { authOptions } from '@studyvault/lib/auth/options';
+import connectDB from '@studyvault/db/connect';
 import Book from '@studyvault/db/models/Book';
 
 export async function POST(
