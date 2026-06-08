@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Flame, Clock, BookOpen, FileText, GraduationCap } from "lucide-react";
 import Link from "next/link";
+import { chapterUrl, topicUrl } from "@/lib/reader-urls";
 
 interface TopicResult {
   _id: string;
@@ -127,12 +128,20 @@ export default function SearchResultRow({ result }: SearchResultRowProps) {
   const getStudyLink = () => {
     if (result.type === "topic") {
       const topic = result.data as TopicResult;
-      // Construct URL based on your routing structure
-      return `/PB/grade-${topic.chapter.book.grade}/${topic.chapter.book.subject.toLowerCase()}/${topic.chapter.slug}/${topic.slug}`;
+      return topicUrl(
+        topic.chapter.book.subject.toLowerCase(),
+        topic.chapter.slug,
+        topic.slug,
+        { boardSlug: 'PB', programSlug: `grade-${topic.chapter.book.grade}` }
+      );
     }
     if (result.type === "chapter") {
       const chapter = result.data as ChapterResult;
-      return `/PB/grade-${chapter.book.grade}/${chapter.book.subject.toLowerCase()}/${chapter.slug}`;
+      return chapterUrl(
+        chapter.book.subject.toLowerCase(),
+        chapter.slug,
+        { boardSlug: 'PB', programSlug: `grade-${chapter.book.grade}` }
+      );
     }
     if (result.type === "subject") {
       const subject = result.data as SubjectResult;

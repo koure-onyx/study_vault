@@ -14,6 +14,7 @@ export async function GET(
     const { chapterId } = await params;
 
     const isPreview = request.nextUrl.searchParams.get('preview') === 'true';
+    const includeContent = request.nextUrl.searchParams.get('includeContent') === 'true';
 
     let showAll = isPreview;
     try {
@@ -28,9 +29,8 @@ export async function GET(
       console.warn('Failed to resolve book live status for topics API:', err);
     }
 
-    const includeContent = request.nextUrl.searchParams.get('includeContent') === 'true';
     const fields = includeContent
-      ? '_id title slug topic_number display_order difficulty estimated_read_time exam_frequency content_blocks key_terms book_mcqs book_problems book_short_questions chapter_id book_id'
+      ? '_id title slug topic_number display_order difficulty estimated_read_time exam_frequency content_blocks key_terms book_mcqs book_problems book_short_questions chapter_id book_id program_id board_id seo is_live'
       : '_id title slug topic_number display_order difficulty estimated_read_time chapter_id book_id';
 
     const topics = await TopicModel.find({
@@ -45,11 +45,25 @@ export async function GET(
       success: true,
       data: topics.map((t: any) => ({
         _id: t._id?.toString(),
+        title: t.title,
+        slug: t.slug,
+        topic_number: t.topic_number,
+        display_order: t.display_order,
+        difficulty: t.difficulty,
+        estimated_read_time: t.estimated_read_time,
+        exam_frequency: t.exam_frequency,
+        content_blocks: includeContent ? t.content_blocks : undefined,
+        key_terms: t.key_terms,
+        book_mcqs: t.book_mcqs,
+        book_problems: t.book_problems,
+        book_short_questions: t.book_short_questions,
         chapter_id: t.chapter_id?.toString(),
         book_id: t.book_id?.toString(),
+        is_live: t.is_live,
       })),
     });
   } catch (error) {
+    console.error('Error fetching topics:', error);
     return NextResponse.json(
       { 
         success: false, 

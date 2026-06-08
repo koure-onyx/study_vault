@@ -13,6 +13,7 @@ interface Book {
   subject_slug?: string;
   slug?: string;
   board: string;
+  board_short_code?: string;
   board_slug?: string;
   program_slug?: string;
   grade: number;
@@ -37,7 +38,7 @@ export function BookCard({ book }: BookCard) {
     : DEFAULT_SUBJECT_CONFIG;
   const IconComponent = config.icon;
   const readerHref = bookUrl(book.subject_slug || book.slug || book._id, {
-    boardSlug: book.board_slug,
+    boardSlug: book.board_short_code || book.board_slug,
     programSlug: book.program_slug,
     grade: book.grade,
   });

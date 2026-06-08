@@ -16,6 +16,38 @@ function pickSeo(entity) {
   };
 }
 
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function buildBoardMatcher(boardSlug) {
+  const normalizedBoardSlug = String(boardSlug || '').trim().toLowerCase();
+  const normalizedBoardName = normalizedBoardSlug.replace(/-/g, ' ');
+  const isPunjabAlias =
+    normalizedBoardSlug === 'pb' ||
+    normalizedBoardSlug === 'punjab' ||
+    normalizedBoardSlug === 'punjab-board' ||
+    normalizedBoardName.includes('punjab');
+
+  const matchers = [
+    { slug: normalizedBoardSlug },
+    { short_code: String(boardSlug || '').toUpperCase() },
+    { name: new RegExp(`^${escapeRegex(normalizedBoardName)}$`, 'i') },
+    { name: new RegExp(normalizedBoardName, 'i') },
+  ];
+
+  if (isPunjabAlias) {
+    matchers.push(
+      { province: /punjab/i },
+      { slug: /punjab/i },
+      { name: /punjab/i },
+      { short_code: 'PB' }
+    );
+  }
+
+  return { $or: matchers };
+}
+
 export async function getReaderSeoData({
   boardSlug,
   programSlug,
@@ -25,22 +57,21 @@ export async function getReaderSeoData({
 }) {
   await connectDB();
 
-  const normalizedBoardSlug = String(boardSlug || '').trim().toLowerCase().replace(/-/g, ' ');
   const board = boardSlug
-    ? await Board.findOne({
-        $or: [
-          { slug: boardSlug.toLowerCase() },
-          { short_code: boardSlug.toUpperCase() },
-          { name: new RegExp(`^${normalizedBoardSlug}$`, 'i') },
-          { name: new RegExp(normalizedBoardSlug, 'i') },
-        ],
-      })
+    ? await Board.findOne(buildBoardMatcher(boardSlug))
         .select('name slug short_code')
         .lean()
     : null;
 
   const program = programSlug
-    ? await Program.findOne({ slug: programSlug }).select('name slug').lean()
+    ? await Program.findOne({
+        $or: [
+          { slug: programSlug.toLowerCase() },
+          { slug: programSlug.toLowerCase().replace(/-/g, ' ') },
+          { name: new RegExp(`^${programSlug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/-/g, ' ')}$`, 'i') },
+          { name: new RegExp(`^${programSlug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') },
+        ],
+      }).select('name slug').lean()
     : null;
 
   const bookQuery = {

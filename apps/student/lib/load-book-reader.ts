@@ -9,6 +9,7 @@ import type { ITopic, IChapter, IBook, IProgram, IBoard } from '@studyvault/db/m
 import { getAuthUser } from '@studyvault/lib/auth/getAuthUser';
 import { resolveUserContentProfile } from '@studyvault/lib/content/bookFilter';
 import { serializeForClient } from '@/lib/serialize-for-client';
+import { canonicalBoardSlug } from '@/lib/reader-urls';
 import { normalizeSlug } from '@studyvault/lib/utils/api-response';
 
 // Use typed model references instead of 'as any'
@@ -25,6 +26,38 @@ export function idString(value: unknown): string {
     return String((value as { _id: unknown })._id);
   }
   return String(value);
+}
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isPunjabBoardAlias(value: string) {
+  const normalized = value.trim().toLowerCase().replace(/\s+/g, '-');
+  return normalized === 'pb' || normalized === 'punjab' || normalized === 'punjab-board';
+}
+
+function buildBoardMatcher(boardSlug: string) {
+  const normalizedBoardSlug = boardSlug.trim().toLowerCase();
+  const normalizedBoardName = normalizedBoardSlug.replace(/-/g, ' ');
+
+  const matchers: Record<string, unknown>[] = [
+    { slug: normalizedBoardSlug },
+    { short_code: boardSlug.toUpperCase() },
+    { name: new RegExp(`^${escapeRegex(normalizedBoardName)}$`, 'i') },
+    { name: new RegExp(normalizedBoardName, 'i') },
+  ];
+
+  if (isPunjabBoardAlias(boardSlug) || normalizedBoardName.includes('punjab')) {
+    matchers.push(
+      { province: /punjab/i },
+      { slug: /punjab/i },
+      { name: /punjab/i },
+      { short_code: 'PB' }
+    );
+  }
+
+  return { $or: matchers };
 }
 
 export type BookReaderData = {
@@ -46,11 +79,24 @@ export async function loadBookReaderData(
   const isLoggedIn = Boolean(user);
 
   const normalizedSubjectSlug = normalizeSlug(subjectSlug);
+  const normalizedSubjectName = normalizedSubjectSlug.replace(/-/g, ' ');
+  const subjectSlugPrefix = normalizedSubjectSlug.split('-')[0] || normalizedSubjectSlug;
   const subjectMatcher = {
     $or: [
       { subject_slug: normalizedSubjectSlug },
+      { subject_slug: normalizedSubjectName },
+      { subject: new RegExp(`^${escapeRegex(normalizedSubjectSlug)}$`, 'i') },
+      { subject: new RegExp(`^${escapeRegex(normalizedSubjectName)}$`, 'i') },
       { slug: normalizedSubjectSlug },
-      ...(normalizedSubjectSlug.includes('-') ? [{ subject_slug: normalizedSubjectSlug.split('-')[0] }] : []),
+      { slug: new RegExp(`^${escapeRegex(normalizedSubjectSlug)}(?:-|$)`, 'i') },
+      { slug: new RegExp(`^${escapeRegex(normalizedSubjectName)}(?:-|$)`, 'i') },
+      ...(normalizedSubjectSlug.includes('-')
+        ? [
+            { subject_slug: subjectSlugPrefix },
+            { subject: new RegExp(`^${escapeRegex(subjectSlugPrefix)}(?:\\b|$)`, 'i') },
+            { slug: new RegExp(`^${escapeRegex(subjectSlugPrefix)}(?:-|$)`, 'i') },
+          ]
+        : []),
     ],
   };
 
@@ -58,18 +104,19 @@ export async function loadBookReaderData(
   let program: any = null;
 
   if (opts?.programSlug && opts?.boardSlug) {
-    program = await Program.findOne({ slug: opts.programSlug }).lean();
-    if (!program) notFound();
-
-    const normalizedBoardSlug = opts.boardSlug.toLowerCase().replace(/-/g, ' ');
-    const board = await Board.findOne({
+    const normalizedProgramSlug = opts.programSlug.toLowerCase();
+    const normalizedProgramName = normalizedProgramSlug.replace(/-/g, ' ');
+    program = await Program.findOne({
       $or: [
-        { slug: opts.boardSlug.toLowerCase() },
-        { short_code: opts.boardSlug.toUpperCase() },
-        { name: new RegExp(`^${normalizedBoardSlug}$`, 'i') },
-        { name: new RegExp(normalizedBoardSlug, 'i') },
+        { slug: normalizedProgramSlug },
+        { slug: normalizedProgramName },
+        { name: new RegExp(`^${escapeRegex(normalizedProgramName)}$`, 'i') },
+        { name: new RegExp(`^${escapeRegex(normalizedProgramSlug)}$`, 'i') },
       ],
     }).lean();
+    if (!program) notFound();
+
+    const board = await Board.findOne(buildBoardMatcher(opts.boardSlug)).lean();
     if (!board) notFound();
 
     book = await Book.findOne({
@@ -85,7 +132,18 @@ export async function loadBookReaderData(
 
     if (!book) notFound();
   } else if (opts?.programSlug) {
-    program = await Program.findOne({ slug: opts.programSlug }).select('name slug').lean();
+    const normalizedProgramSlug = opts.programSlug.toLowerCase();
+    const normalizedProgramName = normalizedProgramSlug.replace(/-/g, ' ');
+    program = await Program.findOne({
+      $or: [
+        { slug: normalizedProgramSlug },
+        { slug: normalizedProgramName },
+        { name: new RegExp(`^${escapeRegex(normalizedProgramName)}$`, 'i') },
+        { name: new RegExp(`^${escapeRegex(normalizedProgramSlug)}$`, 'i') },
+      ],
+    })
+      .select('name slug')
+      .lean();
     if (!program) notFound();
 
     book = await Book.findOne({ ...subjectMatcher, program_id: program._id, is_live: true })
@@ -139,7 +197,7 @@ export async function loadBookReaderData(
       book_id: idString(c.book_id),
     })),
     isLoggedIn,
-    boardSlug: book.board_id?.short_code || book.board_id?.slug || null,
+    boardSlug: canonicalBoardSlug(opts?.boardSlug || book.board_id?.short_code || book.board_id?.slug || null),
     programSlug: opts?.programSlug || program.slug,
     grade: book.grade || (book.metadata?.grade_level ? book.metadata.grade_level.replace(/grade\s*/i, '').trim() : undefined) || (program?.slug ? program.slug.replace('grade-', '') : undefined),
   });
@@ -316,7 +374,7 @@ export async function loadTopicBySlug(
       _id: idString(c._id),
     })),
     isLoggedIn,
-    boardSlug: boardSlug || book.board_id?.short_code || book.board_id?.slug || null,
+    boardSlug: canonicalBoardSlug(boardSlug || book.board_id?.short_code || book.board_id?.slug || null),
     programSlug: activeProgramSlug,
     grade,
   });

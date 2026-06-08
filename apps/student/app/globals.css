@@ -292,3 +292,16 @@ body {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
 }
+
+/* Explicit Tailwind color class definitions for primary blue */
+.bg-primary-50 { background-color: #EFF6FF !important; }
+.bg-primary-100 { background-color: #DBEAFE !important; }
+.bg-primary-600 { background-color: #2563EB !important; }
+.bg-primary-700 { background-color: #1D4ED8 !important; }
+
+.text-primary-50 { color: #EFF6FF !important; }
+.text-primary-100 { color: #DBEAFE !important; }
+.text-primary-600 { color: #2563EB !important; }
+.text-primary-700 { color: #1D4ED8 !important; }
+
+.hover\:bg-primary-700:hover { background-color: #1D4ED8 !important; }

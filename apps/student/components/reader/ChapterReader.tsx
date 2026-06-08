@@ -1,32 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
-import { bookUrl, topicUrl } from '@/lib/reader-urls';
-import { BookReaderNav } from './BookReaderNav';
+import { useEffect, useState } from 'react';
+import type { IChapter } from '@studyvault/db/models';
 
-type ChapterReaderProps = {
+interface ChapterReaderProps {
   book: any;
   program: any;
-  chapter: any;
+  chapter: IChapter;
   chapterTopics: any[];
-  chapters: any[];
+  chapters: IChapter[];
   isLoggedIn: boolean;
-  boardSlug?: string;
+  boardSlug: string;
   subjectSlug: string;
-  programSlug?: string;
-  grade?: string;
-  prevChapterSlug: string | null;
-  nextChapterSlug: string | null;
-};
+  programSlug: string;
+  grade: string;
+  prevChapterSlug?: string | null;
+  nextChapterSlug?: string | null;
+}
 
 export function ChapterReader({
   book,
   program,
   chapter,
-  chapterTopics,
+  chapterTopics: initialTopics,
   chapters,
   isLoggedIn,
   boardSlug,
@@ -36,135 +33,103 @@ export function ChapterReader({
   prevChapterSlug,
   nextChapterSlug,
 }: ChapterReaderProps) {
-  const opts = boardSlug || programSlug || grade ? { boardSlug, programSlug, grade } : undefined;
-  const [topics, setTopics] = useState<any[]>(chapterTopics);
-  const [loading, setLoading] = useState(chapterTopics.length === 0);
-  const [error, setError] = useState('');
-
-  const searchParams = useSearchParams();
+  const [topics, setTopics] = useState<any[]>(initialTopics || []);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadTopics() {
+    const loadTopicsWithContent = async () => {
+      if (!chapter?._id) return;
       setLoading(true);
-      setError('');
-
-      const previewParam = searchParams.get('preview') === 'true' ? '?preview=true' : '';
-
       try {
-        const response = await fetch(`/api/chapters/${chapter._id}/topics${previewParam}`);
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.error || 'Failed to load topics');
+        const previewParam = !isLoggedIn ? '?preview=true' : '';
+        const url = `/api/chapters/${chapter._id}/topics${previewParam}${previewParam ? '&' : '?'}includeContent=true`;
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result.success && result.data) {
+          setTopics(result.data);
         }
-
-        if (!cancelled) setTopics(data.data || []);
-      } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load topics');
+      } catch (error) {
+        console.error('Failed to load topics:', error);
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
-    }
-
-    loadTopics();
-
-    return () => {
-      cancelled = true;
     };
-  }, [chapter._id]);
+    loadTopicsWithContent();
+  }, [chapter?._id, isLoggedIn]);
 
-  const previewParam = searchParams.get('preview') === 'true' ? '?preview=true' : '';
+  const navigation = {
+    prev: prevChapterSlug ? `/${boardSlug}/${programSlug}/${subjectSlug}/${prevChapterSlug}` : null,
+    next: nextChapterSlug ? `/${boardSlug}/${programSlug}/${subjectSlug}/${nextChapterSlug}` : null,
+  };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-32">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4 md:px-8">
-          <Link
-            href={`${bookUrl(subjectSlug, opts)}${previewParam}`}
-            className="text-sm font-semibold text-indigo-600 hover:underline"
-          >
-            ← {book.title}
-          </Link>
-          <span className="text-xs font-medium text-slate-500">{program.name}</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Inline Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href={`/${boardSlug}/${programSlug}/${subjectSlug}`} className="text-gray-500 hover:text-gray-700 font-medium">
+              ← Back
+            </Link>
+            <div className="h-6 w-px bg-gray-300" />
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900 truncate max-w-[200px] sm:max-w-md">{book?.title}</h1>
+              <p className="text-xs text-gray-500">{grade} • {subjectSlug}</p>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-8 md:px-8 md:py-12">
-        <div className="mb-10 border-b border-slate-200 pb-8">
-          <p className="text-sm font-bold uppercase tracking-wider text-indigo-600">
-            Chapter {chapter.chapter_number} of {chapters.length}
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-black text-slate-900 md:text-4xl">
-            {chapter.title}
-          </h1>
-          <p className="mt-3 text-slate-600">
-            Select a topic to open a focused page with reading content and practice.
-          </p>
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{chapter.title}</h1>
+          {chapter.description && <p className="text-gray-600">{chapter.description}</p>}
         </div>
 
-        {loading ? (
-          <p className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white p-10 text-slate-500">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Loading topics
-          </p>
-        ) : error ? (
-          <p className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-center text-rose-700">
-            {error}
-          </p>
-        ) : topics.length > 0 ? (
-          <ul className="space-y-3">
-            {topics.map((topic) => {
-              const label = topic.topic_number || `${chapter.chapter_number}.${topic.display_order ?? ''}`;
-
-              return (
-                <li key={topic._id}>
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Topics</h2>
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Loading...</div>
+          ) : topics.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No topics yet.</div>
+          ) : (
+            <div className="space-y-3">
+              {topics.map((topic: any) => {
+                const hasContent = topic.content_blocks && topic.content_blocks.length > 0;
+                return (
                   <Link
-                    href={`${topicUrl(subjectSlug, chapter.slug, topic.slug, opts)}${previewParam}`}
-                    className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-300 hover:bg-emerald-50/60 hover:shadow-md"
+                    key={topic._id}
+                    href={`/${boardSlug}/${programSlug}/${subjectSlug}/${chapter.slug}/${topic.slug}`}
+                    className={`block p-4 border rounded-lg transition-colors ${hasContent ? 'border-gray-200 hover:border-blue-500 hover:bg-blue-50' : 'border-gray-100 bg-gray-50 opacity-75'}`}
                   >
-                    <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-600 group-hover:bg-emerald-100 group-hover:text-emerald-700">
-                      {label}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-display text-base font-semibold text-slate-900 group-hover:text-emerald-900">
-                        {topic.title}
-                      </span>
-                      <span className="mt-1 block text-xs font-medium text-slate-500">
-                        Open topic
-                      </span>
-                    </span>
-                    {topic.estimated_read_time ? (
-                      <span className="shrink-0 text-xs font-semibold text-slate-400">
-                        {topic.estimated_read_time}m
-                      </span>
-                    ) : null}
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          {topic.topic_number ? `${topic.topic_number}. ${topic.title}` : topic.title}
+                        </h3>
+                      </div>
+                      {hasContent ? (
+                        <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">Ready</span>
+                      ) : (
+                        <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded">Soon</span>
+                      )}
+                    </div>
                   </Link>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <p className="rounded-xl border border-dashed border-slate-200 bg-white p-10 text-center text-slate-500">
-            No topics in this chapter yet.
-          </p>
-        )}
-      </main>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-      <BookReaderNav
-        boardSlug={boardSlug}
-        subjectSlug={subjectSlug}
-        programSlug={programSlug}
-        bookTitle={book.title}
-        chapterSlug={chapter.slug}
-        chapterNumber={chapter.chapter_number}
-        chapterTitle={chapter.title}
-        grade={grade}
-        prevChapterSlug={prevChapterSlug}
-        nextChapterSlug={nextChapterSlug}
-        totalChapters={chapters.length}
-      />
+        <div className="mt-8 flex justify-between">
+          {navigation.prev ? (
+            <Link href={navigation.prev} className="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-50">← Prev</Link>
+          ) : <div />}
+          {navigation.next ? (
+            <Link href={navigation.next} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Next →</Link>
+          ) : <div />}
+        </div>
+      </main>
     </div>
   );
 }

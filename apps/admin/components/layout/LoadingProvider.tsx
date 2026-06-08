@@ -28,12 +28,12 @@ export function LoadingProvider({
       {children}
       {isLoading && (
         <div className={cn(
-          'fixed inset-0 bg-background/80 backdrop-blur-sm z-50',
+          'fixed inset-0 bg-bg-primary/80 backdrop-blur-sm z-50',
           'flex items-center justify-center'
         )}>
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-muted-foreground text-sm">Loading...</p>
+            <p className="text-text-muted text-sm">Loading...</p>
           </div>
         </div>
       )}

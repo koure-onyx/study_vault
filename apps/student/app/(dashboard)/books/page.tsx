@@ -61,7 +61,8 @@ async function fetchBooksData() {
     isDraft: book.isDraft || false,
     slug: book.slug,
     subject_slug: book.subject_slug,
-    board_slug: book.board_id?.slug || book.board_id?.short_code,
+    board_short_code: book.board_id?.short_code,
+    board_slug: book.board_id?.short_code || book.board_id?.slug,
     program_slug: book.program_id?.slug,
   }));
 }

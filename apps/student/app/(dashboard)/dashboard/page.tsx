@@ -34,6 +34,7 @@ interface Book {
   program_name: string;
   board: string;
   subject_slug: string;
+  board_short_code?: string;
   board_slug?: string;
   program_slug?: string;
   total_topics: number;
@@ -337,7 +338,7 @@ async function DashboardContent() {
                 </div>
                 <a
                   href={bookUrl(book.subject_slug, {
-                    boardSlug: book.board_slug,
+                    boardSlug: book.board_short_code || book.board_slug,
                     programSlug: book.program_slug,
                   })}
                   className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"

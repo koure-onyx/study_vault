@@ -11,6 +11,7 @@ import {
   loadTopicBySlug,
   loadBookReaderData,
 } from '@/lib/load-book-reader';
+import { canonicalBoardSlug } from '@/lib/reader-urls';
 
 const RESERVED_SLUGS = new Set([
   'login', 'signup', 'onboarding', 'dashboard', 'books', 'quran', 'profile',
@@ -118,7 +119,7 @@ export default async function ReaderPage({
 
   const data = await loadBookReaderData(subjectSlug, { programSlug, boardSlug });
   
-  const activeBoardSlug = data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB';
+  const activeBoardSlug = canonicalBoardSlug(data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB');
   const activeProgramSlug = data.programSlug || programSlug;
   const activeSubjectSlug = data.book.subject_slug || data.book.slug || subjectSlug;
   

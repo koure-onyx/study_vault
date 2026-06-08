@@ -1,20 +1,27 @@
 import { unstable_noStore as noStore } from 'next/cache';
 import type { Metadata } from 'next';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import { BookChapterIndex } from '@/components/reader/BookChapterIndex';
 import { ChapterReader } from '@/components/reader/ChapterReader';
 import TopicLevelReader from '@/components/reader/TopicLevelReader';
 import { parseReaderPath } from '@/lib/reader-urls';
+import { canonicalBoardSlug } from '@/lib/reader-urls';
 import {
   findChapterBySlug,
   loadBookReaderData,
   loadTopicBySlug,
 } from '@/lib/load-book-reader';
 import { getReaderSeoData } from '@studyvault/lib/content/getSeoData';
+import connectDB from '@studyvault/db/connect';
+import Book from '@studyvault/db/models/Book';
 
 function absoluteUrl(path: string) {
   const base = process.env.NEXT_PUBLIC_APP_URL || 'https://studyvault.pk';
   return `${base}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function buildReaderPath({
@@ -36,17 +43,67 @@ function buildReaderPath({
   return `/${parts.map((part) => String(part).trim()).filter(Boolean).join('/')}`;
 }
 
+async function resolveShortUrl(slug: string[]): Promise<string | null> {
+  if (slug.length !== 1) return null;
+
+  const subjectSlug = slug[0].toLowerCase();
+  await connectDB();
+
+  const normalizedSubject = subjectSlug.replace(/-/g, ' ');
+  const subjectSlugPrefix = subjectSlug.split('-')[0] || subjectSlug;
+
+  const book = await Book.findOne({
+    $or: [
+      { subject_slug: normalizedSubject },
+      { subject_slug: subjectSlug },
+      { subject: new RegExp(`^${escapeRegex(normalizedSubject)}$`, 'i') },
+      { subject: new RegExp(`^${escapeRegex(subjectSlug)}$`, 'i') },
+      { slug: subjectSlug },
+      { slug: new RegExp(`^${escapeRegex(subjectSlug)}(?:-|$)`, 'i') },
+      { slug: new RegExp(`^${escapeRegex(normalizedSubject)}(?:-|$)`, 'i') },
+      { subject_slug: subjectSlugPrefix },
+      { subject: new RegExp(`^${escapeRegex(subjectSlugPrefix)}(?:\\b|$)`, 'i') },
+      { slug: new RegExp(`^${escapeRegex(subjectSlugPrefix)}(?:-|$)`, 'i') },
+    ],
+    is_live: true,
+  })
+    .populate('board_id', 'slug short_code')
+    .populate('program_id', 'slug')
+    .lean();
+
+  if (!book) return null;
+
+  const boardShortCode = canonicalBoardSlug(book.board_id?.short_code || book.board_id?.slug || 'PB');
+  const programSlug = book.program_id?.slug || 'grade-9';
+  const targetSubjectSlug = book.subject_slug || book.slug || subjectSlug;
+
+  return `/${boardShortCode}/${programSlug}/${targetSubjectSlug}`;
+}
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ boardSlug: string; programSlug: string; subjectSlug: string; slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const { chapterSlug, topicSlug } = parseReaderPath(resolvedParams.slug);
+
+  const redirectPath = await resolveShortUrl(resolvedParams.slug || []);
+  if (redirectPath) {
+    return {};
+  }
+
+  if (!resolvedParams.slug || resolvedParams.slug.length < 2) {
+    return {};
+  }
+
+  const [boardSlug, programSlug, ...rest] = resolvedParams.slug;
+  const subjectSlug = rest[0];
+  const { chapterSlug, topicSlug } = parseReaderPath(rest.slice(1));
+
   const seoData = await getReaderSeoData({
-    boardSlug: resolvedParams.boardSlug,
-    programSlug: resolvedParams.programSlug,
-    subjectSlug: resolvedParams.subjectSlug,
+    boardSlug,
+    programSlug,
+    subjectSlug,
     chapterSlug: chapterSlug || undefined,
     topicSlug: topicSlug || undefined,
   });
@@ -54,9 +111,9 @@ export async function generateMetadata({
   if (!seoData) return {};
 
   const canonicalPath = buildReaderPath({
-    boardSlug: resolvedParams.boardSlug,
-    programSlug: resolvedParams.programSlug,
-    subjectSlug: resolvedParams.subjectSlug,
+    boardSlug,
+    programSlug,
+    subjectSlug,
     chapterSlug,
     topicSlug,
   });
@@ -90,28 +147,44 @@ export async function generateMetadata({
 export default async function ReaderPage({
   params,
 }: {
-  params: Promise<{ boardSlug: string; programSlug: string; subjectSlug: string; slug?: string[] }>;
+  params: Promise<{ slug?: string[] }>;
 }) {
   noStore();
 
   const resolvedParams = await params;
-  const { chapterSlug, topicSlug } = parseReaderPath(resolvedParams.slug);
 
-  const data = await loadBookReaderData(resolvedParams.subjectSlug, {
-    boardSlug: resolvedParams.boardSlug,
-    programSlug: resolvedParams.programSlug,
+  // Handle short URL redirects (e.g., /english -> /PB/grade-9/english)
+  if (resolvedParams.slug && resolvedParams.slug.length === 1) {
+    const redirectPath = await resolveShortUrl(resolvedParams.slug);
+    if (redirectPath) {
+      redirect(redirectPath);
+    }
+    notFound();
+  }
+
+  if (!resolvedParams.slug || resolvedParams.slug.length < 2) {
+    notFound();
+  }
+
+  const [boardSlug, programSlug, ...rest] = resolvedParams.slug;
+  const subjectSlug = rest[0];
+  const { chapterSlug, topicSlug } = parseReaderPath(rest.slice(1));
+
+  const data = await loadBookReaderData(subjectSlug, {
+    boardSlug,
+    programSlug,
   });
 
-  const activeBoardSlug = data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB';
-  const activeProgramSlug = data.programSlug || resolvedParams.programSlug;
-  const activeSubjectSlug = data.book.subject_slug || data.book.slug || resolvedParams.subjectSlug;
+  const activeBoardSlug = canonicalBoardSlug(data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB');
+  const activeProgramSlug = data.programSlug || programSlug;
+  const activeSubjectSlug = data.book.subject_slug || data.book.slug || subjectSlug;
   const activeGrade = data.grade;
 
-  // Enforce canonical URL structure: /[short_board_code]/[programSlug]/[subjectSlug]
+  // Enforce canonical URL structure
   if (
-    resolvedParams.boardSlug !== activeBoardSlug || 
-    resolvedParams.programSlug !== activeProgramSlug ||
-    resolvedParams.subjectSlug !== activeSubjectSlug
+    boardSlug !== activeBoardSlug ||
+    programSlug !== activeProgramSlug ||
+    subjectSlug !== activeSubjectSlug
   ) {
       const canonical = [activeBoardSlug, activeProgramSlug, activeSubjectSlug];
       if (chapterSlug) canonical.push(chapterSlug);

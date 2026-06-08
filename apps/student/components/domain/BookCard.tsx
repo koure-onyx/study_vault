@@ -14,6 +14,7 @@ export interface DashboardBook {
   subject_slug: string;
   program_name: string;
   board: string;
+  board_short_code?: string;
   board_slug?: string;
   program_slug?: string;
   edition_year: number;
@@ -40,7 +41,7 @@ export function BookCard({ book, showProgress = false }: BookCardProps) {
   const handleClick = () => {
     router.push(
       bookUrl(book.subject_slug, {
-        boardSlug: book.board_slug,
+        boardSlug: book.board_short_code || book.board_slug,
         programSlug: book.program_slug,
       })
     );

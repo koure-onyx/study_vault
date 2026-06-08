@@ -4,6 +4,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { BookChapterIndex } from '@/components/reader/BookChapterIndex';
 import { ChapterReader } from '@/components/reader/ChapterReader';
 import TopicLevelReader from '@/components/reader/TopicLevelReader';
+import { canonicalBoardSlug } from '@/lib/reader-urls';
 import { parseReaderPath } from '@/lib/reader-urls';
 import {
   findChapterBySlug,
@@ -102,7 +103,7 @@ export default async function ReaderPage({
     programSlug: resolvedParams.programSlug,
   });
 
-  const activeBoardSlug = data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB';
+  const activeBoardSlug = canonicalBoardSlug(data.boardSlug || data.book.board_id?.short_code || data.book.board_id?.slug || 'PB');
   const activeProgramSlug = data.programSlug || resolvedParams.programSlug;
   const activeSubjectSlug = data.book.subject_slug || data.book.slug || resolvedParams.subjectSlug;
   const activeGrade = data.grade;

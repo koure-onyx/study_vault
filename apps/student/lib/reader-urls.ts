@@ -5,13 +5,32 @@ function toPathSegment(value: string | number | null | undefined) {
   return String(value).trim().replace(/\s+/g, '-').replace(/\/+/g, '-');
 }
 
+const PUNJAB_BOARD_ALIASES = new Set([
+  'pb',
+  'punjab',
+  'punjab-board',
+  'punjab-board-of-intermediate-and-secondary-education',
+]);
+
+export function canonicalBoardSlug(value: string | number | null | undefined) {
+  const segment = toPathSegment(value);
+  if (!segment) return '';
+
+  const normalized = segment.toLowerCase();
+  if (PUNJAB_BOARD_ALIASES.has(normalized) || normalized === 'punjab board') {
+    return 'PB';
+  }
+
+  return segment;
+}
+
 export function bookUrl(
   subjectSlug: string,
   opts?: { boardSlug?: string; programSlug?: string; grade?: string | number }
 ) {
   const segments = [] as string[];
 
-  const boardSlug = opts?.boardSlug ? toPathSegment(opts.boardSlug) : '';
+  const boardSlug = opts?.boardSlug ? canonicalBoardSlug(opts.boardSlug) : '';
   const progSlug = opts?.programSlug ? toPathSegment(opts.programSlug) : '';
 
   if (boardSlug) {

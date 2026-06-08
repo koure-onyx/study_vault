@@ -19,13 +19,22 @@ export async function GET(request: NextRequest) {
 
     // Fetch live books for the dashboard
     const books = await Book.find({ is_live: true })
-      .select('title subject subject_slug subject_icon program_name board board_slug program_slug edition_year metadata')
+      .populate('board_id', 'name slug short_code')
+      .populate('program_id', 'name slug')
+      .select('title subject subject_slug subject_icon program_name board board_slug program_slug edition_year metadata board_id program_id')
       .lean();
+
+    const normalizedBooks = books.map((book: any) => ({
+      ...book,
+      board_short_code: book.board_id?.short_code || null,
+      board_slug: book.board_id?.short_code || book.board_slug || book.board_id?.slug || null,
+      program_slug: book.program_id?.slug || book.program_slug || null,
+    }));
 
     // Guest users only get books list
     if (!user) {
       return successResponse({
-        books,
+        books: normalizedBooks,
         recentChapters: [],
         stats: {
           examReadiness: 0,
@@ -121,7 +130,7 @@ export async function GET(request: NextRequest) {
     const streakDays = 0;
 
     return successResponse({
-      books,
+      books: normalizedBooks,
       recentChapters,
       stats: {
         examReadiness,

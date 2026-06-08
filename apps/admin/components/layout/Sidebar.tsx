@@ -30,11 +30,11 @@ export function Sidebar({ navigationItems, session, onClose }: SidebarProps) {
       <div className="p-4 border-b">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">SV</span>
+            <span className="text-white font-bold text-sm">SV</span>
           </div>
           <div>
             <h1 className="font-semibold text-lg">Study Vault</h1>
-            <p className="text-xs text-muted-foreground">Admin Portal</p>
+            <p className="text-xs text-text-muted">Admin Portal</p>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@ export function Sidebar({ navigationItems, session, onClose }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto p-4 space-y-6">
         {Object.entries(groupedItems).map(([category, items]) => (
           <div key={category}>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
               {category}
             </h3>
             <ul className="space-y-1">
@@ -60,8 +60,8 @@ export function Sidebar({ navigationItems, session, onClose }: SidebarProps) {
                         'flex items-center gap-3 px-3 py-2 rounded-md text-sm',
                         'transition-colors',
                         isActive
-                          ? 'bg-accent text-accent-foreground font-medium'
-                          : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                          ? 'bg-accent text-text-primary font-medium'
+                          : 'text-text-muted hover:bg-accent/50 hover:text-text-primary'
                       )}
                     >
                       <Icon className="w-4 h-4" />
@@ -86,7 +86,7 @@ export function Sidebar({ navigationItems, session, onClose }: SidebarProps) {
                 className="w-8 h-8 rounded-full"
               />
             ) : (
-              <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-bg-tertiary rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium">
                   {session.user.name?.charAt(0) || 'U'}
                 </span>
@@ -96,7 +96,7 @@ export function Sidebar({ navigationItems, session, onClose }: SidebarProps) {
               <p className="text-sm font-medium truncate">
                 {session.user.name}
               </p>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-text-muted truncate">
                 {session.user.email}
               </p>
             </div>
