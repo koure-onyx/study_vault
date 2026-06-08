@@ -188,6 +188,14 @@ export default function BooksIngestPage() {
               ? parsed.book_metadata.subject.toLowerCase().replace(/[^a-z0-9]+/g, '-') 
               : '');
           
+          // Extract chapter number for preview URL
+          let chapterNumber: number | undefined;
+          if (parsed.chapter) {
+            chapterNumber = parsed.chapter.number || parsed.chapter.chapter_number || parsed.chapter.id;
+          } else if (parsed.book_metadata.chapter) {
+            chapterNumber = parsed.book_metadata.chapter.number || parsed.book_metadata.chapter.chapter_number;
+          }
+          
           setFormData(prev => ({
             ...prev,
             title: parsed.book_metadata.title || '',
@@ -202,7 +210,7 @@ export default function BooksIngestPage() {
             boardSlug,
             programSlug,
             subjectSlug,
-            chapterNumber: chapterNum,
+            chapterNumber: chapterNumber ? Number(chapterNumber) : undefined,
           });
         }
       } catch {

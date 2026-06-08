@@ -9,6 +9,7 @@ import connectDB from '@studyvault/db/connect';
 import _UserProgress from '@studyvault/db/models/UserProgress';
 import _Book from '@studyvault/db/models/Book';
 import { getServerUser } from '@studyvault/lib/auth/server';
+import Link from 'next/link';
 
 const UserProgress = _UserProgress;
 const Book = _Book;
@@ -25,9 +26,11 @@ export default async function ProgressPage() {
         <PageContainer title="Progress">
           <div className="text-center py-12">
             <p className="text-text-secondary">Open the dashboard to view your progress.</p>
-            <Button variant="primary" className="mt-4" onClick={() => window.location.href = '/dashboard'}>
-              Open Dashboard
-            </Button>
+            <Link href="/dashboard">
+              <Button variant="primary" className="mt-4">
+                Open Dashboard
+              </Button>
+            </Link>
           </div>
         </PageContainer>
       </AppShell>
