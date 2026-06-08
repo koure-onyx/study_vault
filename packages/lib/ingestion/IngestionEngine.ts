@@ -283,17 +283,23 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         program_id: program._id,
         board_id: board._id,
         chapter_number: chapter.chapter_number,
+        chapter_number_display: chapter.chapter_number_display || `Chapter ${chapter.chapter_number}`,
         description: chapter.chapter_summary || '',
         order: chapter.chapter_number,
+        display_order: chapter.chapter_number,
+        is_live: true,
       });
       log.push(`Created chapter: ${chapterDoc.title}`);
     } else {
       chapterDoc.title = chapter.title;
       chapterDoc.chapter_number = chapter.chapter_number;
+      chapterDoc.chapter_number_display = chapter.chapter_number_display || chapterDoc.chapter_number_display;
       chapterDoc.program_id = program._id;
       chapterDoc.board_id = board._id;
       chapterDoc.description = chapter.chapter_summary || chapterDoc.description;
       chapterDoc.order = chapter.chapter_number;
+      chapterDoc.display_order = chapter.chapter_number;
+      chapterDoc.is_live = true;
       await chapterDoc.save();
       log.push(`Updated chapter: ${chapterDoc.title}`);
     }
