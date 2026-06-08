@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, BookOpen, ChevronDown, ChevronRight, ExternalLink, Layers, RefreshCw, Trash2 } from 'lucide-react';
+import { AlertTriangle, BookOpen, ChevronDown, ChevronRight, Eye, Layers, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -34,6 +34,7 @@ export default function ManageBooksPage() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
   const [result, setResult] = useState<{ success: boolean; message?: string; error?: string } | null>(null);
 
   useEffect(() => {
@@ -177,7 +178,7 @@ export default function ManageBooksPage() {
     const newStatus = !book.is_live;
     
     try {
-      setPreviewingId(id);
+      setStatusUpdatingId(id);
       const response = await fetch(`/api/books/${id}`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -203,7 +204,7 @@ export default function ManageBooksPage() {
         error: error instanceof Error ? error.message : 'Failed to update book status',
       });
     } finally {
-      setPreviewingId(null);
+      setStatusUpdatingId(null);
     }
   }
 
@@ -290,31 +291,60 @@ export default function ManageBooksPage() {
                           <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-700">
                             {book.total_topics || 0} topics
                           </span>
-                          <span className={`px-2 py-1 rounded-full ${book.is_live ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-                            {book.is_live ? 'Live' : 'Draft'}
+                          <span className={`px-2 py-1 rounded-full ${book.is_live ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'}`}>
+                            {book.is_live ? 'Live' : 'Draft - Hidden'}
                           </span>
                         </span>
                       </span>
                     </button>
 
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant={book.is_live ? 'outline' : 'default'}
-                        size="sm"
-                        onClick={() => toggleBookLiveStatus(book)}
-                        disabled={previewingId === id}
-                      >
-                        <BookOpen className="w-4 h-4 mr-2" />
-                        {previewingId === id ? 'Updating...' : book.is_live ? 'Set Draft' : 'Set Live'}
-                      </Button>
+                    <div className="relative z-10 flex flex-col gap-3">
+                      <div className={`flex flex-col gap-3 rounded-2xl border p-4 shadow-sm ${book.is_live ? 'border-border bg-bg-secondary' : 'border-emerald-200 bg-emerald-50/80'}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-text-primary">
+                              {book.is_live ? 'Visible to students' : 'Hidden from students'}
+                            </p>
+                            <p className="mt-1 text-xs text-text-muted">
+                              {book.is_live
+                                ? 'You can move it back to draft anytime.'
+                                : 'Publish it to let students see and open it.'}
+                            </p>
+                          </div>
+                          <span className={`rounded-full px-3 py-1 text-xs font-medium ${book.is_live ? 'bg-accent/10 text-accent-dark' : 'bg-warning/10 text-warning'}`}>
+                            {book.is_live ? 'Live' : 'Draft'}
+                          </span>
+                        </div>
+                        <Button
+                          variant={book.is_live ? 'secondary' : 'success'}
+                          size="sm"
+                          onClick={() => toggleBookLiveStatus(book)}
+                          disabled={statusUpdatingId === id}
+                          className={`relative z-20 w-full justify-center sm:w-auto sm:self-start ${book.is_live ? '' : 'shadow-md shadow-emerald-500/25 ring-1 ring-emerald-500/20'}`}
+                        >
+                          {book.is_live ? (
+                            <BookOpen className="w-4 h-4 mr-2" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 mr-2" />
+                          )}
+                          {statusUpdatingId === id
+                            ? 'Updating...'
+                            : book.is_live
+                              ? 'Set Draft'
+                              : 'Make Live'}
+                        </Button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => previewBook(book)}
                         disabled={previewingId === id || !book.is_live}
                         title={!book.is_live ? 'Book must be live to preview' : undefined}
+                        className="w-full sm:w-auto"
                       >
-                        <ExternalLink className="w-4 h-4 mr-2" />
+                        <Eye className="w-4 h-4 mr-2" />
                         {previewingId === id ? 'Opening...' : 'Preview'}
                       </Button>
                       <Button
@@ -322,10 +352,12 @@ export default function ManageBooksPage() {
                         size="sm"
                         onClick={() => deleteBook(book)}
                         disabled={deletingId === id}
+                        className="w-full sm:w-auto"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         {deletingId === id ? 'Deleting...' : 'Delete Book'}
                       </Button>
+                      </div>
                     </div>
                   </div>
 
