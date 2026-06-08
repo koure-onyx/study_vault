@@ -238,12 +238,11 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
       }
     }
     
-    // STEP 3: Upsert Book
+    // STEP 3: Upsert Book - slug must be unique per board+subject+edition to avoid E11000 errors
     const subjectSlug = book_metadata.subject_slug || generateSlug(book_metadata.subject);
-    const bookSlug = `${subjectSlug}-${generateSlug(book_metadata.title)}`;
+    const bookSlug = `${subjectSlug}-${generateSlug(book_metadata.title)}-${board._id}-${book_metadata.edition_year}`;
     let book = await Book.findOne({ 
-      slug: bookSlug,
-      board_id: board._id 
+      slug: bookSlug
     });
     
     if (!book) {
