@@ -34,6 +34,18 @@ export default function BooksIngestPage() {
     jsonPayload: '',
   });
 
+  // Helper function to generate slug
+  const generateSlug = (text: string): string => {
+    if (!text) return '';
+    return text
+      .toLowerCase()
+      .replace(/[^\\w\\s-]/g, '')
+      .replace(/\\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .trim();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setState({ idle: false, loading: true, success: false, error: false });
@@ -72,19 +84,52 @@ export default function BooksIngestPage() {
 
       const ingestionData = {
         book_metadata: {
-          title: formData.title,
-          grade_level: formData.gradeLevel,
-          board: formData.board,
-          subject: formData.subject,
-          description: formData.description || undefined,
-          cover_image_url: formData.coverImageUrl || undefined,
+          title: parsedJson.book_metadata?.title || formData.title,
+          subject: parsedJson.book_metadata?.subject || formData.subject,
+          subject_slug: parsedJson.book_metadata?.subject_slug || generateSlug(formData.subject),
+          grade_level: parsedJson.book_metadata?.grade_level || formData.gradeLevel,
+          edition_year: parsedJson.book_metadata?.edition_year || new Date().getFullYear(),
+          publisher: parsedJson.book_metadata?.publisher || undefined,
+          authors: parsedJson.book_metadata?.authors || [],
+          board: parsedJson.book_metadata?.board || formData.board,
+          language: parsedJson.book_metadata?.language || 'english',
+          script_direction: parsedJson.book_metadata?.script_direction || 'ltr',
         },
         chapter: {
+          chapter_number: chapterNum,
+          chapter_number_display: parsedJson.chapter?.chapter_number_display || `Chapter ${chapterNum}`,
           title: chapterTitle || `Chapter ${chapterNum}`,
-          number: chapterNum,
-          description: chapterDescription || undefined,
+          slug: parsedJson.chapter?.slug || undefined,
+          page_start: parsedJson.chapter?.page_start || undefined,
+          page_end: parsedJson.chapter?.page_end || undefined,
+          student_learning_outcomes: parsedJson.chapter?.student_learning_outcomes || [],
+          chapter_summary: chapterDescription || parsedJson.chapter?.chapter_summary || '',
+          seo: parsedJson.chapter?.seo || undefined,
         },
-        topics: parsedJson.topics || [],
+        topics: (parsedJson.topics || []).map((topic: any, index: number) => ({
+          title: topic.title || `Topic ${index + 1}`,
+          title_urdu: topic.title_urdu || '',
+          slug: topic.slug || undefined,
+          topic_number: topic.topic_number || String(index + 1),
+          display_order: topic.display_order || index,
+          difficulty: topic.difficulty || 'medium',
+          estimated_read_time: topic.estimated_read_time || 3,
+          edition_year: topic.edition_year || new Date().getFullYear(),
+          raw_text: topic.raw_text || '',
+          clean_html: topic.clean_html || '',
+          content_blocks: topic.content_blocks || [],
+          formulas: topic.formulas || [],
+          key_terms: topic.key_terms || [],
+          book_mcqs: topic.book_mcqs || [],
+          book_short_questions: topic.book_short_questions || [],
+          book_problems: topic.book_problems || [],
+          keywords: topic.keywords || [],
+          quran_reference: topic.quran_reference || null,
+          quran_word_alignments: topic.quran_word_alignments || [],
+          quran_textbook_translation: topic.quran_textbook_translation || null,
+          quran_textbook_tafsir: topic.quran_textbook_tafsir || null,
+          seo: topic.seo || {},
+        })),
       };
 
       const response = await fetch('/api/admin/books/ingest', {

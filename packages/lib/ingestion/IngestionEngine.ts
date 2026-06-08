@@ -23,28 +23,127 @@ interface KeyTerm {
 
 interface BookMetadata {
   title: string;
-  grade_level: string;
-  board: string;
   subject: string;
-  description?: string;
-  cover_image_url?: string;
+  subject_slug: string;
+  grade_level: string;
+  edition_year: number;
+  publisher?: string;
+  authors?: string[];
+  board: string;
+  language?: string;
+  script_direction?: string;
+}
+
+interface ChapterData {
+  chapter_number: number;
+  chapter_number_display: string;
+  title: string;
+  slug: string;
+  page_start?: number;
+  page_end?: number;
+  student_learning_outcomes?: string[];
+  chapter_summary?: string;
+  seo?: {
+    meta_title: string;
+    meta_description: string;
+    keywords: string[];
+  };
+}
+
+interface ContentBlock {
+  type: string;
+  text?: string;
+  html?: string;
+  level?: number;
+  latex?: string;
+  formula_label?: string;
+  headers?: string[];
+  rows?: string[][];
+  caption?: string;
+  src?: string;
+  alt?: string;
+  figure_number?: string;
+  page_coordinates?: string;
+  ordered?: boolean;
+  items?: string[];
+  variant?: string;
+  title?: string;
+  problem?: string;
+  solution?: string;
+  steps?: string[];
+  answer?: string;
+  question?: string;
+  options?: string[];
+  correct_answer?: string;
+  explanation?: string;
+  term?: string;
+  definition?: string;
+  quran_data?: {
+    surah: number;
+    ayah: number;
+    textbook_line_translation: string;
+    word_alignments: Array<{
+      position: number;
+      textbook_urdu: string;
+      color_highlight?: string | null;
+    }>;
+    tafsir_snippet?: string;
+  };
+  block_order: number;
+}
+
+interface TopicData {
+  title: string;
+  title_urdu?: string;
+  slug: string;
+  topic_number: string;
+  display_order: number;
+  difficulty?: string;
+  estimated_read_time?: number;
+  edition_year: number;
+  seo?: {
+    meta_title: string;
+    meta_description: string;
+    keywords: string[];
+    source_page?: number;
+  };
+  raw_text: string;
+  clean_html: string;
+  content_blocks: ContentBlock[];
+  formulas?: Array<{ latex: string; label?: string; plain_text?: string }>;
+  key_terms?: Array<string | { term: string; definition: string }>;
+  book_mcqs?: Array<{
+    question: string;
+    options: string[];
+    correct_answer: string;
+    explanation?: string;
+  }>;
+  book_short_questions?: string[];
+  book_problems?: Array<{ problem: string; answer: string; steps?: string[] }>;
+  keywords?: string[];
+  quran_reference?: {
+    surah: number;
+    ayah: number;
+    surah_name_arabic?: string;
+    surah_name_english?: string;
+    juz?: number;
+    manzil?: number;
+    ruku?: number;
+  };
+  quran_word_alignments?: Array<{
+    position: number;
+    textbook_urdu_meaning: string;
+    color_highlight?: string | null;
+    grammar_note?: string | null;
+  }>;
+  quran_textbook_translation?: string;
+  quran_textbook_tafsir?: string;
 }
 
 interface IngestionData {
   book_metadata: BookMetadata;
-  chapter: {
-    title: string;
-    number: number;
-    description?: string;
-  };
-  topics: Array<{
-    title: string;
-    number: number;
-    content_html: string;
-    key_terms?: Array<string | { term: string; definition: string }>;
-    learning_objectives?: string[];
-    summary?: string;
-  }>;
+  chapter: ChapterData;
+  topics: TopicData[];
 }
 
 function computeHash(text: string): string {
@@ -88,6 +187,17 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
     
     const { book_metadata, chapter, topics } = data;
     
+    // Validate required fields from DeepSeek JSON schema
+    if (!book_metadata.edition_year) {
+      throw new Error('book_metadata.edition_year is required');
+    }
+    if (!book_metadata.subject_slug) {
+      throw new Error('book_metadata.subject_slug is required');
+    }
+    if (chapter.chapter_number === undefined || chapter.chapter_number === null) {
+      throw new Error('chapter.chapter_number is required');
+    }
+    
     // STEP 1: Upsert Program
     let program = await Program.findOne({ slug: generateSlug(book_metadata.grade_level) });
     if (!program) {
@@ -121,9 +231,8 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
     }
     
     // STEP 3: Upsert Book
-    const subjectSlug = generateSlug(book_metadata.subject);
+    const subjectSlug = book_metadata.subject_slug || generateSlug(book_metadata.subject);
     const bookSlug = `${subjectSlug}-${generateSlug(book_metadata.title)}`;
-    const currentYear = new Date().getFullYear();
     let book = await Book.findOne({ 
       slug: bookSlug,
       board_id: board._id 
@@ -139,11 +248,9 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         grade: book_metadata.grade_level,
         program_id: program._id,
         board_id: board._id,
-        edition_year: currentYear,
-        edition_label: `${currentYear} Edition`,
+        edition_year: book_metadata.edition_year,
+        edition_label: `${book_metadata.edition_year} Edition`,
         is_current_edition: true,
-        description: book_metadata.description || '',
-        cover_image_url: book_metadata.cover_image_url || null,
         order: 1,
       });
       log.push(`Created book: ${book.title}`);
@@ -154,17 +261,15 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
       book.board = book_metadata.board;
       book.grade = book_metadata.grade_level;
       book.program_id = program._id;
-      book.edition_year = currentYear;
-      book.edition_label = `${currentYear} Edition`;
+      book.edition_year = book_metadata.edition_year;
+      book.edition_label = `${book_metadata.edition_year} Edition`;
       book.is_current_edition = true;
-      book.description = book_metadata.description || book.description;
-      book.cover_image_url = book_metadata.cover_image_url || book.cover_image_url;
       await book.save();
       log.push(`Updated book: ${book.title}`);
     }
     
     // STEP 4: Upsert Chapter
-    const chapterSlug = `${bookSlug}-chapter-${chapter.number}`;
+    const chapterSlug = chapter.slug || `${bookSlug}-chapter-${chapter.chapter_number}`;
     let chapterDoc = await Chapter.findOne({ 
       slug: chapterSlug,
       book_id: book._id 
@@ -177,18 +282,18 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         book_id: book._id,
         program_id: program._id,
         board_id: board._id,
-        chapter_number: chapter.number,
-        description: chapter.description || '',
-        order: chapter.number,
+        chapter_number: chapter.chapter_number,
+        description: chapter.chapter_summary || '',
+        order: chapter.chapter_number,
       });
       log.push(`Created chapter: ${chapterDoc.title}`);
     } else {
       chapterDoc.title = chapter.title;
-      chapterDoc.chapter_number = chapter.number;
+      chapterDoc.chapter_number = chapter.chapter_number;
       chapterDoc.program_id = program._id;
       chapterDoc.board_id = board._id;
-      chapterDoc.description = chapter.description || chapterDoc.description;
-      chapterDoc.order = chapter.number;
+      chapterDoc.description = chapter.chapter_summary || chapterDoc.description;
+      chapterDoc.order = chapter.chapter_number;
       await chapterDoc.save();
       log.push(`Updated chapter: ${chapterDoc.title}`);
     }
@@ -198,7 +303,7 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
     let topicsUpdated = 0;
     
     for (const topicData of topics) {
-      const topicSlug = `${chapterSlug}-topic-${topicData.number}`;
+      const topicSlug = topicData.slug || `${chapterSlug}-topic-${topicData.topic_number}`;
       const keyTerms = normalizeKeyTerms(topicData.key_terms || []);
       
       let topic = await Topic.findOne({ 
@@ -206,20 +311,61 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         chapter_id: chapterDoc._id 
       });
       
-      const topicContentHash = computeHash(topicData.content_html);
+      // Concatenate raw_text from content_blocks if not provided
+      let rawText = topicData.raw_text || '';
+      if (!rawText && topicData.content_blocks && topicData.content_blocks.length > 0) {
+        rawText = topicData.content_blocks
+          .filter(block => block.text)
+          .map(block => block.text)
+          .join('\n\n');
+      }
+      
+      // Use clean_html or concatenate from content_blocks
+      let cleanHtml = topicData.clean_html || '';
+      if (!cleanHtml && topicData.content_blocks && topicData.content_blocks.length > 0) {
+        cleanHtml = topicData.content_blocks
+          .filter(block => block.html)
+          .map(block => block.html)
+          .join('\n');
+      }
+      
+      const topicContentHash = computeHash(cleanHtml);
       
       if (!topic) {
         await Topic.create({
           title: topicData.title,
+          title_urdu: topicData.title_urdu || '',
           slug: topicSlug,
-          chapter_id: chapterDoc._id,
-          topic_number: topicData.number,
-          content_html: topicData.content_html,
-          content_hash: topicContentHash,
+          topic_number: topicData.topic_number,
+          display_order: topicData.display_order,
+          difficulty: topicData.difficulty || 'medium',
+          estimated_read_time: topicData.estimated_read_time || 3,
+          edition_year: topicData.edition_year || book_metadata.edition_year,
+          raw_text: rawText,
+          clean_html: cleanHtml,
+          content_blocks: topicData.content_blocks || [],
+          formulas: topicData.formulas || [],
           key_terms: keyTerms,
-          learning_objectives: topicData.learning_objectives || [],
-          summary: topicData.summary || '',
-          order: topicData.number,
+          book_mcqs: topicData.book_mcqs || [],
+          book_short_questions: topicData.book_short_questions || [],
+          book_problems: topicData.book_problems || [],
+          keywords: topicData.keywords || [],
+          quran_reference: topicData.quran_reference || null,
+          quran_word_alignments: topicData.quran_word_alignments || [],
+          quran_textbook_translation: topicData.quran_textbook_translation || null,
+          quran_textbook_tafsir: topicData.quran_textbook_tafsir || null,
+          book_id: book._id,
+          chapter_id: chapterDoc._id,
+          program_id: program._id,
+          board_id: board._id,
+          program_name: book_metadata.grade_level,
+          subject_name: book_metadata.subject,
+          chapter_number: chapter.chapter_number,
+          chapter_title: chapter.title,
+          seo: topicData.seo || {},
+          version_status: 'new' as const,
+          is_live: false,
+          workflow_status: 'draft' as const,
         });
         topicsCreated++;
         log.push(`Created topic: ${topicData.title}`);
@@ -227,12 +373,28 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         // Only update if content has changed
         if (topic.content_hash !== topicContentHash) {
           topic.title = topicData.title;
-          topic.content_html = topicData.content_html;
+          topic.title_urdu = topicData.title_urdu || topic.title_urdu;
+          topic.topic_number = topicData.topic_number;
+          topic.display_order = topicData.display_order;
+          topic.difficulty = topicData.difficulty || topic.difficulty;
+          topic.estimated_read_time = topicData.estimated_read_time || topic.estimated_read_time;
+          topic.edition_year = topicData.edition_year || book_metadata.edition_year;
+          topic.raw_text = rawText;
+          topic.clean_html = cleanHtml;
+          topic.content_blocks = topicData.content_blocks || topic.content_blocks;
           topic.content_hash = topicContentHash;
+          topic.formulas = topicData.formulas || topic.formulas;
           topic.key_terms = keyTerms;
-          topic.learning_objectives = topicData.learning_objectives || topic.learning_objectives;
-          topic.summary = topicData.summary || topic.summary;
-          topic.order = topicData.number;
+          topic.book_mcqs = topicData.book_mcqs || topic.book_mcqs;
+          topic.book_short_questions = topicData.book_short_questions || topic.book_short_questions;
+          topic.book_problems = topicData.book_problems || topic.book_problems;
+          topic.keywords = topicData.keywords || topic.keywords;
+          topic.quran_reference = topicData.quran_reference || topic.quran_reference;
+          topic.quran_word_alignments = topicData.quran_word_alignments || topic.quran_word_alignments;
+          topic.quran_textbook_translation = topicData.quran_textbook_translation || topic.quran_textbook_translation;
+          topic.quran_textbook_tafsir = topicData.quran_textbook_tafsir || topic.quran_textbook_tafsir;
+          topic.seo = topicData.seo || topic.seo;
+          topic.version_status = 'modified' as const;
           await topic.save();
           topicsUpdated++;
           log.push(`Updated topic: ${topicData.title}`);
