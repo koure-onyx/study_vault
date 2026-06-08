@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Upload, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { BookOpen, Upload, CheckCircle, AlertCircle, Loader2, Eye, X } from 'lucide-react';
 
 interface IngestionState {
   idle: boolean;
@@ -20,9 +20,41 @@ interface IngestionResult {
   };
 }
 
+interface TopicPreview {
+  _id: string;
+  title: string;
+  slug?: string;
+  topic_number: string;
+  raw_text?: string;
+  clean_html?: string;
+  content_blocks?: any[];
+}
+
+interface ChapterPreview {
+  _id: string;
+  chapter_number: number;
+  title: string;
+  slug?: string;
+  topics: TopicPreview[];
+}
+
+interface BookPreview {
+  _id: string;
+  title: string;
+  subject: string;
+  subject_slug: string;
+  grade_level: string;
+  board: string;
+  edition_year?: number;
+  chapters?: ChapterPreview[];
+}
+
 export default function BooksIngestPage() {
   const [state, setState] = useState<IngestionState>({ idle: true, loading: false, success: false, error: false });
   const [result, setResult] = useState<IngestionResult | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [bookPreview, setBookPreview] = useState<BookPreview | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -148,12 +180,33 @@ export default function BooksIngestPage() {
 
       setResult(data);
       setState({ idle: false, loading: false, success: true, error: false });
+      
+      // Fetch book preview after successful ingestion
+      if (data.data?.bookId) {
+        fetchBookPreview(data.data.bookId);
+      }
     } catch (error: any) {
       setResult({
         success: false,
         message: error.message || 'An unexpected error occurred',
       });
       setState({ idle: false, loading: false, success: false, error: true });
+    }
+  };
+
+  const fetchBookPreview = async (bookId: string) => {
+    setLoadingPreview(true);
+    try {
+      const response = await fetch(`/api/books/${bookId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBookPreview(data);
+        setShowPreview(true);
+      }
+    } catch (error) {
+      console.error('Failed to fetch book preview:', error);
+    } finally {
+      setLoadingPreview(false);
     }
   };
 
@@ -213,6 +266,18 @@ export default function BooksIngestPage() {
                 <p>Topics Created: {result.data.topicsCreated || 0}</p>
               </div>
             )}
+            <button
+              onClick={() => bookPreview ? setShowPreview(true) : fetchBookPreview(result.data!.bookId!)}
+              disabled={loadingPreview}
+              className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              {loadingPreview ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+              View Preview
+            </button>
           </div>
         </div>
       )}
@@ -378,6 +443,86 @@ export default function BooksIngestPage() {
           </button>
         </div>
       </form>
+
+      {/* Preview Modal */}
+      {showPreview && bookPreview && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowPreview(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Book Preview</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6">
+              <div className="space-y-6">
+                {/* Book Info */}
+                <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                  <h3 className="font-semibold text-indigo-900 text-lg">{bookPreview.title}</h3>
+                  <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <span className="text-indigo-600 font-medium">Subject:</span>
+                      <span className="ml-2 text-indigo-900">{bookPreview.subject}</span>
+                    </div>
+                    <div>
+                      <span className="text-indigo-600 font-medium">Grade:</span>
+                      <span className="ml-2 text-indigo-900">{bookPreview.grade_level}</span>
+                    </div>
+                    <div>
+                      <span className="text-indigo-600 font-medium">Board:</span>
+                      <span className="ml-2 text-indigo-900">{bookPreview.board}</span>
+                    </div>
+                    {bookPreview.edition_year && (
+                      <div>
+                        <span className="text-indigo-600 font-medium">Edition:</span>
+                        <span className="ml-2 text-indigo-900">{bookPreview.edition_year}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Chapters and Topics */}
+                {bookPreview.chapters && bookPreview.chapters.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-gray-900 text-lg">Chapters & Topics</h3>
+                    {bookPreview.chapters.map((chapter) => (
+                      <div key={chapter._id} className="border border-gray-200 rounded-lg overflow-hidden">
+                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                          <h4 className="font-medium text-gray-900">
+                            Chapter {chapter.chapter_number}: {chapter.title}
+                          </h4>
+                        </div>
+                        <div className="p-4">
+                          {chapter.topics && chapter.topics.length > 0 ? (
+                            <ul className="space-y-2">
+                              {chapter.topics.map((topic) => (
+                                <li key={topic._id} className="flex items-start gap-2 text-sm">
+                                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium flex-shrink-0">
+                                    {topic.topic_number}
+                                  </span>
+                                  <span className="text-gray-900 font-medium">{topic.title}</span>
+                                  {topic.slug && (
+                                    <span className="text-gray-400 text-xs ml-auto">/{topic.slug}</span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-gray-500 text-sm italic">No topics in this chapter</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Help Section */}
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">

@@ -14,6 +14,61 @@ const Question = QuestionModel as any;
 const UserProgress = UserProgressModel as any;
 const UserVault = UserVaultModel as any;
 
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ bookId: string }> }
+) {
+  try {
+    await connectDB();
+    const { bookId } = await params;
+
+    const book = await Book.findById(bookId).lean();
+    if (!book) {
+      return NextResponse.json(
+        { success: false, error: 'Book not found' },
+        { status: 404 }
+      );
+    }
+
+    // Fetch chapters for this book
+    const chapters = await Chapter.find({ book_id: bookId })
+      .sort({ chapter_number: 1 })
+      .lean();
+
+    // Fetch topics for each chapter
+    const chaptersWithTopics = await Promise.all(
+      chapters.map(async (chapter: any) => {
+        const topics = await Topic.find({ chapter_id: chapter._id })
+          .sort({ display_order: 1 })
+          .select('_id title slug topic_number raw_text clean_html content_blocks')
+          .lean();
+        
+        return {
+          ...chapter,
+          topics,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...book,
+        chapters: chaptersWithTopics,
+      },
+    });
+  } catch (error) {
+    console.error('Get book preview error:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch book',
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ bookId: string }> }
