@@ -204,11 +204,11 @@ export default function BooksIngestPage() {
         if (parsed.book_metadata) {
           const boardSlug = canonicalBoardSlug(parsed.book_metadata.board || '');
           const programSlug = parsed.book_metadata.grade_level 
-            ? parsed.book_metadata.grade_level.toLowerCase().replace(/[^a-z0-9]+/g, '-') 
+            ? parsed.book_metadata.grade_level.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
             : '';
           const subjectSlug = parsed.book_metadata.subject_slug 
             || (parsed.book_metadata.subject 
-              ? parsed.book_metadata.subject.toLowerCase().replace(/[^a-z0-9]+/g, '-') 
+              ? parsed.book_metadata.subject.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
               : '');
           
           // Extract chapter number for preview URL

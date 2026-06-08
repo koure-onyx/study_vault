@@ -269,7 +269,7 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
     }
     
     // STEP 4: Upsert Chapter
-    const chapterSlug = chapter.slug || `${bookSlug}-chapter-${chapter.chapter_number}`;
+    const chapterSlug = chapter.slug || `chapter-${chapter.chapter_number}`;
     let chapterDoc = await Chapter.findOne({ 
       slug: chapterSlug,
       book_id: book._id 
