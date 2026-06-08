@@ -87,18 +87,18 @@ export default function BooksIngestPage() {
       const value = event.target?.result as string;
       setFormData(prev => ({ ...prev, jsonPayload: value }));
       
-      // Auto-extract metadata from JSON if available
+      // Auto-extract metadata from JSON - always overwrite with JSON data
       try {
         const parsed = JSON.parse(value);
         if (parsed.book_metadata) {
           setFormData(prev => ({
             ...prev,
-            title: prev.title || parsed.book_metadata.title || '',
-            gradeLevel: prev.gradeLevel || parsed.book_metadata.grade_level || '',
-            board: prev.board || parsed.book_metadata.board || '',
-            subject: prev.subject || parsed.book_metadata.subject || '',
-            description: prev.description || parsed.book_metadata.description || '',
-            coverImageUrl: prev.coverImageUrl || parsed.book_metadata.cover_image_url || '',
+            title: parsed.book_metadata.title || '',
+            gradeLevel: parsed.book_metadata.grade_level || '',
+            board: parsed.book_metadata.board || '',
+            subject: parsed.book_metadata.subject || '',
+            description: parsed.book_metadata.description || '',
+            coverImageUrl: parsed.book_metadata.cover_image_url || '',
           }));
         }
       } catch {
