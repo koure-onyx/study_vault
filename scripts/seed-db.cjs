@@ -257,7 +257,7 @@ async function seedDatabase() {
     console.log('✅ Books seeded:', books.length);
 
     // Seed Chapters for Physics Grade 9
-    const physicsBook = books[0];
+    const physicsBook = books[1]; // Physics book is at index 1
     const physicsChapters = [
       {
         _id: new ObjectId(),
@@ -266,8 +266,8 @@ async function seedDatabase() {
         chapter_number: 1,
         chapter_number_display: 'Chapter 1',
         book_id: physicsBook._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
         student_learning_outcomes: [
           'Define physics and its importance',
           'Understand physical quantities and their units',
@@ -280,8 +280,8 @@ async function seedDatabase() {
         total_topics: 0,
         exam_frequency: [
           {
-            board_id: fbiseBoard._id,
-            board_short_code: 'FBISE',
+            board_id: punjabBoard._id,
+            board_short_code: 'PB',
             total_appearances: 15,
             last_appeared_year: 2023,
             is_hot: true,
@@ -304,8 +304,8 @@ async function seedDatabase() {
         chapter_number: 2,
         chapter_number_display: 'Chapter 2',
         book_id: physicsBook._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
         student_learning_outcomes: [
           'Understand motion and its types',
           'Calculate velocity and acceleration',
@@ -318,8 +318,8 @@ async function seedDatabase() {
         total_topics: 0,
         exam_frequency: [
           {
-            board_id: fbiseBoard._id,
-            board_short_code: 'FBISE',
+            board_id: punjabBoard._id,
+            board_short_code: 'PB',
             total_appearances: 20,
             last_appeared_year: 2023,
             is_hot: true,
@@ -342,8 +342,8 @@ async function seedDatabase() {
         chapter_number: 3,
         chapter_number_display: 'Chapter 3',
         book_id: physicsBook._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
         student_learning_outcomes: [
           'Understand force and its effects',
           "Learn Newton's Laws of Motion",
@@ -356,8 +356,8 @@ async function seedDatabase() {
         total_topics: 0,
         exam_frequency: [
           {
-            board_id: fbiseBoard._id,
-            board_short_code: 'FBISE',
+            board_id: punjabBoard._id,
+            board_short_code: 'PB',
             total_appearances: 18,
             last_appeared_year: 2023,
             is_hot: true,
@@ -390,9 +390,9 @@ async function seedDatabase() {
         display_order: 1,
         book_id: physicsBook._id,
         chapter_id: chapter1._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
-        program_name: fbiseProgram.name,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
+        program_name: grade9Program.name,
         subject_name: 'Physics',
         chapter_number: 1,
         chapter_title: chapter1.title,
@@ -470,9 +470,9 @@ The word "physics" comes from the Greek word "physis," which means nature.
         display_order: 2,
         book_id: physicsBook._id,
         chapter_id: chapter1._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
-        program_name: fbiseProgram.name,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
+        program_name: grade9Program.name,
         subject_name: 'Physics',
         chapter_number: 1,
         chapter_title: chapter1.title,
@@ -564,9 +564,9 @@ Examples:
         display_order: 3,
         book_id: physicsBook._id,
         chapter_id: chapter1._id,
-        program_id: fbiseProgram._id,
-        board_id: fbiseBoard._id,
-        program_name: fbiseProgram.name,
+        program_id: grade9Program._id,
+        board_id: punjabBoard._id,
+        program_name: grade9Program.name,
         subject_name: 'Physics',
         chapter_number: 1,
         chapter_title: chapter1.title,
@@ -687,9 +687,9 @@ Before SI units, different countries used different measurement systems, causing
       role: 'student',
       is_verified: true,
       student_profile: {
-        program_ids: [fbiseProgram._id],
-        board_id: fbiseBoard._id,
-        active_program_id: fbiseProgram._id,
+        program_ids: [grade9Program._id],
+        board_id: punjabBoard._id,
+        active_program_id: grade9Program._id,
         xp_total: 150,
         streak_days: 5,
         last_active: new Date(),
