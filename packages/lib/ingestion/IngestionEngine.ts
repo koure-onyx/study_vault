@@ -175,6 +175,8 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
         title: chapter.title,
         slug: chapterSlug,
         book_id: book._id,
+        program_id: program._id,
+        board_id: board._id,
         chapter_number: chapter.number,
         description: chapter.description || '',
         order: chapter.number,
@@ -182,6 +184,8 @@ export async function processBookIngestion(data: IngestionData): Promise<Ingesti
       log.push(`Created chapter: ${chapterDoc.title}`);
     } else {
       chapterDoc.title = chapter.title;
+      chapterDoc.program_id = program._id;
+      chapterDoc.board_id = board._id;
       chapterDoc.description = chapter.description || chapterDoc.description;
       chapterDoc.order = chapter.number;
       await chapterDoc.save();
