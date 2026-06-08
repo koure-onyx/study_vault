@@ -3,6 +3,30 @@
 import { useState } from 'react';
 import { BookOpen, Upload, CheckCircle, AlertCircle, Loader2, Eye, X } from 'lucide-react';
 
+// Helper to generate canonical board slug (matches student app's reader-urls.ts)
+function canonicalBoardSlug(value: string): string {
+  if (!value) return 'PB'; // Default fallback
+  
+  const segment = String(value).trim().replace(/\s+/g, '-').replace(/\/+/g, '-');
+  const normalized = segment.toLowerCase();
+  
+  const PUNJAB_BOARD_ALIASES = new Set([
+    'pb',
+    'punjab',
+    'punjab-board',
+    'punjab-board-of-intermediate-and-secondary-education',
+    'punjab-curriculum-and-textbook-board',
+    'punjab-curriculum-and-textboard-board-pctb',
+    'punjab-curriculum-and-textbook-board-pctb',
+  ]);
+  
+  if (PUNJAB_BOARD_ALIASES.has(normalized) || normalized.includes('punjab')) {
+    return 'PB';
+  }
+  
+  return segment;
+}
+
 interface IngestionState {
   idle: boolean;
   loading: boolean;
@@ -178,9 +202,7 @@ export default function BooksIngestPage() {
       try {
         const parsed = JSON.parse(value);
         if (parsed.book_metadata) {
-          const boardSlug = parsed.book_metadata.board 
-            ? parsed.book_metadata.board.toLowerCase().replace(/[^a-z0-9]+/g, '-') 
-            : '';
+          const boardSlug = canonicalBoardSlug(parsed.book_metadata.board || '');
           const programSlug = parsed.book_metadata.grade_level 
             ? parsed.book_metadata.grade_level.toLowerCase().replace(/[^a-z0-9]+/g, '-') 
             : '';
