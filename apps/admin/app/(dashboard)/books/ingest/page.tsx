@@ -42,12 +42,32 @@ export default function BooksIngestPage() {
     try {
       const parsedJson = JSON.parse(formData.jsonPayload);
       
-      // Validate chapter data
-      if (!parsedJson.chapter) {
-        throw new Error('JSON payload must contain a "chapter" object');
+      // Validate chapter data - support multiple possible structures
+      let chapterNumber: number | undefined;
+      let chapterTitle: string | undefined;
+      let chapterDescription: string | undefined;
+      
+      // Try different possible locations for chapter number
+      if (parsedJson.chapter) {
+        // Direct chapter object
+        chapterNumber = parsedJson.chapter.number || parsedJson.chapter.chapter_number || parsedJson.chapter.id;
+        chapterTitle = parsedJson.chapter.title || parsedJson.chapter.name;
+        chapterDescription = parsedJson.chapter.description;
+      } else if (parsedJson.book_metadata?.chapter) {
+        // Nested in book_metadata
+        chapterNumber = parsedJson.book_metadata.chapter.number || parsedJson.book_metadata.chapter.chapter_number;
+        chapterTitle = parsedJson.book_metadata.chapter.title;
+        chapterDescription = parsedJson.book_metadata.chapter.description;
       }
-      if (typeof parsedJson.chapter.number !== 'number' || parsedJson.chapter.number < 1) {
-        throw new Error('Chapter must have a valid "number" field (positive integer)');
+      
+      // Validate chapter number exists and is valid
+      if (chapterNumber === undefined || chapterNumber === null) {
+        throw new Error('JSON payload must contain a "chapter" object with a "number", "chapter_number", or "id" field');
+      }
+      
+      const chapterNum = Number(chapterNumber);
+      if (isNaN(chapterNum) || chapterNum < 1) {
+        throw new Error('Chapter number must be a valid positive integer (got: ' + chapterNumber + ')');
       }
 
       const ingestionData = {
@@ -60,9 +80,9 @@ export default function BooksIngestPage() {
           cover_image_url: formData.coverImageUrl || undefined,
         },
         chapter: {
-          title: parsedJson.chapter.title || `Chapter ${parsedJson.chapter.number}`,
-          number: parsedJson.chapter.number,
-          description: parsedJson.chapter.description || undefined,
+          title: chapterTitle || `Chapter ${chapterNum}`,
+          number: chapterNum,
+          description: chapterDescription || undefined,
         },
         topics: parsedJson.topics || [],
       };
